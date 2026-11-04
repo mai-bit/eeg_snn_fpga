@@ -1,0 +1,75 @@
+
+#include "xparameters.h"
+#include "xil_printf.h"
+#include "xil_io.h"
+#include "xil_cache.h"
+#include "xil_types.h"
+#include "sleep.h"
+
+/* BRAM base address */
+#define BRAM_BASE       0x40000000U
+
+/* Producer word address */
+#define PRODUCER_ADDR   1280U
+
+/* Producer byte address */
+#define PRODUCER_BYTE_ADDR \
+    (BRAM_BASE + PRODUCER_ADDR * 4U)
+
+int main(void)
+{
+    UINTPTR addr;
+    u32 value;
+    int i;
+
+    addr = (UINTPTR)PRODUCER_BYTE_ADDR;
+
+    xil_printf("\r\n");
+    xil_printf("================================\r\n");
+    xil_printf("     BRAM Producer Read Test\r\n");
+    xil_printf("================================\r\n");
+
+    xil_printf("BRAM_BASE = 0x%08X\r\n",
+               (unsigned int)BRAM_BASE);
+
+    xil_printf("Producer address = 0x%08X\r\n",
+               (unsigned int)addr);
+
+    xil_printf("Start reading...\r\n");
+
+    for (i = 0; i < 10; i++)
+    {
+        xil_printf("A%d: before invalidate\r\n", i);
+
+        /* Invalidate cache before reading BRAM */
+        Xil_DCacheInvalidateRange(addr, 32U);
+
+        xil_printf("B%d: after invalidate\r\n", i);
+
+        /* Read Producer from BRAM */
+        value = Xil_In32(addr);
+
+        xil_printf("C%d: after read\r\n", i);
+
+        xil_printf(
+            "Read[%d] Producer = 0x%08X (%lu)\r\n",
+            i,
+            (unsigned int)value,
+            (unsigned long)value
+        );
+
+        usleep(500000);
+    }
+
+    xil_printf("\r\n");
+    xil_printf("================================\r\n");
+    xil_printf("Read test finished.\r\n");
+    xil_printf("================================\r\n");
+
+    while (1)
+    {
+        usleep(1000000);
+    }
+
+    return 0;
+}

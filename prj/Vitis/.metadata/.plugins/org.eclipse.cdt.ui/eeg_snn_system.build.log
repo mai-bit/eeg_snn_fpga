@@ -1,0 +1,10 @@
+01:12:09 **** Incremental Build of configuration Debug for project eeg_snn_system ****
+make all 
+Generating bif file for the system project
+generate_system_bif.bat 54410 D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/eeg.xpfm standalone_domain D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg_snn_system/Debug/system.bif
+sdcard_gen --xpfm D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/eeg.xpfm --sys_config eeg --bif D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg_snn_system/Debug/system.bif --bitstream D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg_snn/_ide/bitstream/SYSTEM_wrapper.bit --elf D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg_snn/Debug/eeg_snn.elf,ps7_cortexa9_0
+creating BOOT.BIN using D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg_snn/_ide/bitstream/SYSTEM_wrapper.bit
+Running D:/zdyz/vivado/Vitis/2020.2/bin/bootgen  -image D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg_snn_system/Debug/sd_card_temp/boot.bif -w -o i BOOT.BIN
+
+01:12:15 Build Finished (took 5s.703ms)
+

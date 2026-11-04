@@ -1,0 +1,127 @@
+#include "xparameters.h"
+#include "xil_printf.h"
+#include "xil_io.h"
+#include "xil_cache.h"
+#include "sleep.h"
+#include <stdint.h>
+
+#define BRAM_BASE       XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR
+
+#define RAW_START       256U
+#define RAW_END         1279U
+#define PRODUCER_ADDR   1280U
+#define BAND_START      1281U
+#define STATUS_ADDR    1289U
+
+#define WORD_ADDR(n)    (BRAM_BASE + ((n) * 4U))
+
+static uint32_t bram_read(uint32_t word_addr)
+{
+    uint32_t addr = WORD_ADDR(word_addr);
+
+    Xil_DCacheInvalidateRange(addr, 4);
+
+    xil_printf("  Reading word %lu ...\r\n",
+               (unsigned long)word_addr);
+
+    uint32_t value = Xil_In32(addr);
+
+    xil_printf("  Read OK: 0x%08lx\r\n",
+               (unsigned long)value);
+
+    return value;
+}
+
+int main(void)
+{
+    uint32_t producer;
+    uint32_t bands[8];
+    uint32_t status;
+    uint32_t raw;
+    uint32_t nonzero;
+
+    xil_printf("\r\n");
+    xil_printf("================================\r\n");
+    xil_printf("       EEG BRAM READ TEST\r\n");
+    xil_printf("================================\r\n");
+
+    xil_printf("BRAM BASE = 0x%08lx\r\n",
+               (unsigned long)BRAM_BASE);
+
+    while (1)
+    {
+        xil_printf("\r\n========== NEW SCAN ==========\r\n");
+
+        /*
+         * 1. 先读取之前已确认有变化的 Raw 地址 320
+         */
+        xil_printf("[1] RAW DATA\r\n");
+        raw = bram_read(320);
+
+        /*
+         * 2. 扫描 Raw 环形缓冲区
+         */
+        xil_printf("[2] RAW BUFFER SCAN\r\n");
+
+        nonzero = 0;
+
+        for (uint32_t i = RAW_START; i <= RAW_END; i++)
+        {
+            uint32_t value = bram_read(i);
+
+            if (value != 0)
+                nonzero++;
+        }
+
+        xil_printf("Raw nonzero words = %lu / 1024\r\n",
+                   (unsigned long)nonzero);
+
+        /*
+         * 3. 读取 8 个频带数据
+         */
+        xil_printf("[3] EEG BANDS\r\n");
+
+        for (uint32_t i = 0; i < 8; i++)
+        {
+            bands[i] = bram_read(BAND_START + i);
+        }
+
+        xil_printf("Bands: ");
+
+        for (uint32_t i = 0; i < 8; i++)
+        {
+            xil_printf("%lu ", (unsigned long)bands[i]);
+        }
+
+        xil_printf("\r\n");
+
+        /*
+         * 4. 读取 Status
+         */
+        xil_printf("[4] STATUS\r\n");
+        status = bram_read(STATUS_ADDR);
+
+        xil_printf("Status = 0x%08lx\r\n",
+                   (unsigned long)status);
+
+        /*
+         * 5. Producer 最后读取
+         * 之前这个地址曾经出现 AXI 读取卡住，
+         * 所以单独放在最后，便于定位。
+         */
+        xil_printf("[5] PRODUCER POINTER\r\n");
+        producer = bram_read(PRODUCER_ADDR);
+
+        xil_printf("Producer = %lu\r\n",
+                   (unsigned long)producer);
+
+        xil_printf("Raw sample at word 320 = 0x%08lx\r\n",
+                   (unsigned long)raw);
+
+        xil_printf("========== SCAN COMPLETE ==========\r\n");
+
+        sleep(2);
+    }
+
+    return 0;
+}

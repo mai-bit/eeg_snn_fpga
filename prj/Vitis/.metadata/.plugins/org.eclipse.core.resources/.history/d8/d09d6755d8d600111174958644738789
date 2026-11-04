@@ -1,0 +1,287 @@
+/*
+ * main.c - Zynq-7020, Vitis 2020.2
+ * PL writes BRAM Port A; PS reads Port B through AXI BRAM Controller.
+ *
+ * Required PL BRAM word map (32-bit words):
+ *   256..1279 : 1024 signed raw EEG samples, sample in bits [15:0]
+ *   1280      : producer sequence counter, low 16 bits
+ *   1281..1288: eight TGAM band powers
+ *   1289      : {attention[31:24], meditation[23:16],
+ *                signal_quality[15:8], status_sequence[7:0]}
+ *
+ * BRAM base address: 0x40000000
+ * BRAM size: 2048 x 32-bit words (8 KB)
+ *
+ * FS_HZ=215 is an unverified algorithm assumption, NOT UART baud rate.
+ * This is a bring-up/debug program, not a medical EEG classifier.
+ */
+
+#include "xparameters.h"
+#include "xil_io.h"
+#include "xil_printf.h"
+#include "xil_types.h"
+#include <stdint.h>
+
+/* Explicit aliases so the source does not depend on BSP typedef aliases. */
+typedef uint8_t  u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef int16_t  s16;
+
+#ifndef XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR
+#define EEG_BRAM_BASE 0x40000000U
+#else
+#define EEG_BRAM_BASE XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR
+#endif
+
+#define BRAM_WORD_ADDR(i) \
+    ((UINTPTR)(EEG_BRAM_BASE + ((u32)(i) * 4U)))
+#define BRAM_READ(i) Xil_In32(BRAM_WORD_ADDR(i))
+
+#define RAW_RING_BASE_WORD 256U
+#define PRODUCER_WORD      1280U
+#define TGAM_BAND_BASE     1281U
+#define TGAM_STATUS_WORD   1289U
+#define RING_SIZE          1024U
+#define RING_MASK          (RING_SIZE - 1U)
+
+#define FS_HZ  215U
+#define NWIN   430U
+#define NHOP   108U
+#define N_BINS 32U
+
+/* Goertzel coefficient = 2*cos(2*pi*f/FS), frequencies 4..35 Hz. */
+static const float goertzel_coeff[N_BINS] = {
+    1.986350769f, 1.978686736f, 1.969332928f, 1.958297334f,
+    1.945589376f, 1.931219907f, 1.915201200f, 1.897546933f,
+    1.878272183f, 1.857393411f, 1.834928447f, 1.810896475f,
+    1.785318019f, 1.758214922f, 1.729610331f, 1.699528672f,
+    1.667995636f, 1.635038151f, 1.600684363f, 1.564963609f,
+    1.527906394f, 1.489544365f, 1.449910283f, 1.409037995f,
+    1.366962405f, 1.323719444f, 1.279346043f, 1.233880095f,
+    1.187360429f, 1.139826770f, 1.091319713f, 1.041880681f
+};
+
+static s16 sample_window[NWIN];
+static float bin_power[N_BINS];
+static u32 window_count = 0U;
+static u32 samples_after_hop = 0U;
+static u16 ps_read_sequence = 0U;
+
+static u32 read_bram_word(u32 word_index)
+{
+    return Xil_In32(BRAM_WORD_ADDR(word_index));
+}
+
+static u16 read_producer_sequence(void)
+{
+    return (u16)(read_bram_word(PRODUCER_WORD) & 0xFFFFU);
+}
+
+static void print_bram_debug(void)
+{
+    u32 i;
+    u32 ptr;
+
+    xil_printf("\r\n========== BRAM DEBUG ==========\r\n");
+    xil_printf("BRAM base = 0x%08x\r\n", (unsigned)EEG_BRAM_BASE);
+
+    ptr = read_bram_word(PRODUCER_WORD);
+    xil_printf("producer word[1280] = 0x%08x\r\n", (unsigned)ptr);
+    xil_printf("producer sequence   = %u\r\n", (unsigned)(ptr & 0xFFFFU));
+
+    for (i = 0U; i < 16U; ++i) {
+        u32 value = read_bram_word(RAW_RING_BASE_WORD + i);
+        s16 signed_value = (s16)(value & 0xFFFFU);
+        xil_printf("RAW[%02d] word[%u] = 0x%08x signed=%d\r\n",
+                   (int)i, (unsigned)(RAW_RING_BASE_WORD + i),
+                   (unsigned)value, (int)signed_value);
+    }
+
+    xil_printf("TGAM status[1289] = 0x%08x\r\n",
+               (unsigned)read_bram_word(TGAM_STATUS_WORD));
+
+    for (i = 0U; i < 8U; ++i) {
+        xil_printf("TGAM band[%u] = 0x%08x\r\n",
+                   (unsigned)i,
+                   (unsigned)read_bram_word(TGAM_BAND_BASE + i));
+    }
+    xil_printf("================================\r\n\r\n");
+}
+
+static void append_sample(s16 sample)
+{
+    u32 i;
+
+    if (window_count < NWIN) {
+        sample_window[window_count] = sample;
+        ++window_count;
+    } else {
+        for (i = 0U; i < NWIN - 1U; ++i) {
+            sample_window[i] = sample_window[i + 1U];
+        }
+        sample_window[NWIN - 1U] = sample;
+    }
+}
+
+static void run_goertzel(void)
+{
+    u32 b;
+    u32 n;
+
+    for (b = 0U; b < N_BINS; ++b) {
+        float s1 = 0.0f;
+        float s2 = 0.0f;
+
+        for (n = 0U; n < NWIN; ++n) {
+            float x = (float)sample_window[n];
+            float s0 = x + goertzel_coeff[b] * s1 - s2;
+            s2 = s1;
+            s1 = s0;
+        }
+
+        bin_power[b] = s1 * s1 + s2 * s2
+                     - goertzel_coeff[b] * s1 * s2;
+        if (bin_power[b] < 0.0f) {
+            bin_power[b] = 0.0f;
+        }
+    }
+}
+
+/* Theta 4-7 Hz, alpha 8-12 Hz, beta 13-30 Hz. */
+static int calculate_band_percentages(int *theta_pct,
+                                      int *alpha_pct,
+                                      int *beta_pct)
+{
+    u32 i;
+    float theta = 0.0f;
+    float alpha = 0.0f;
+    float beta = 0.0f;
+    float total;
+
+    for (i = 0U; i <= 3U; ++i) theta += bin_power[i];
+    for (i = 4U; i <= 8U; ++i) alpha += bin_power[i];
+    for (i = 9U; i <= 26U; ++i) beta += bin_power[i];
+
+    total = theta + alpha + beta;
+    if (total <= 0.0f) {
+        *theta_pct = 0;
+        *alpha_pct = 0;
+        *beta_pct = 0;
+        return -1;
+    }
+
+    *theta_pct = (int)(100.0f * theta / total);
+    *alpha_pct = (int)(100.0f * alpha / total);
+    *beta_pct = 100 - *theta_pct - *alpha_pct;
+
+    if (theta >= alpha && theta >= beta) return 0;
+    if (alpha >= beta) return 1;
+    return 2;
+}
+
+static void print_tgam_status_if_changed(void)
+{
+    static int first = 1;
+    static u8 last_sequence = 0xFFU;
+
+    u32 status = read_bram_word(TGAM_STATUS_WORD);
+    u8 sequence = (u8)(status & 0xFFU);
+
+    if (first || sequence != last_sequence) {
+        u32 bands[8];
+        u32 i;
+
+        for (i = 0U; i < 8U; ++i) {
+            bands[i] = read_bram_word(TGAM_BAND_BASE + i) & 0x00FFFFFFU;
+        }
+
+        if (read_bram_word(TGAM_STATUS_WORD) == status) {
+            first = 0;
+            last_sequence = sequence;
+            xil_printf("E,%u,%u,%u,%u",
+                       (unsigned)((status >> 24) & 0xFFU),
+                       (unsigned)((status >> 16) & 0xFFU),
+                       (unsigned)((status >> 8) & 0xFFU),
+                       (unsigned)sequence);
+            for (i = 0U; i < 8U; ++i) {
+                xil_printf(",%lu", (unsigned long)bands[i]);
+            }
+            xil_printf("\r\n");
+        }
+    }
+}
+
+static void process_available_samples(void)
+{
+    u16 producer_sequence = read_producer_sequence();
+    u16 available = (u16)(producer_sequence - ps_read_sequence);
+
+    if ((u32)available > RING_SIZE) {
+        xil_printf("#WARN,ring_overrun,available=%u\r\n",
+                   (unsigned)available);
+        ps_read_sequence = (u16)(producer_sequence - RING_SIZE);
+        available = (u16)RING_SIZE;
+    }
+
+    while (available > 0U) {
+        u32 ring_index = ((u32)ps_read_sequence) & RING_MASK;
+        u32 raw_word = read_bram_word(RAW_RING_BASE_WORD + ring_index);
+        s16 raw_sample = (s16)(raw_word & 0xFFFFU);
+
+        append_sample(raw_sample);
+        ++ps_read_sequence;
+        --available;
+        ++samples_after_hop;
+
+        if (window_count >= NWIN && samples_after_hop >= NHOP) {
+            int theta_pct;
+            int alpha_pct;
+            int beta_pct;
+            int winner;
+            const char *label;
+
+            samples_after_hop = 0U;
+            run_goertzel();
+            winner = calculate_band_percentages(&theta_pct,
+                                                 &alpha_pct,
+                                                 &beta_pct);
+            if (winner < 0) {
+                xil_printf("P,0,0,0,NONE\r\n");
+            } else {
+                if (winner == 0) label = "THETA";
+                else if (winner == 1) label = "ALPHA";
+                else label = "BETA";
+
+                xil_printf("P,%d,%d,%d,%s\r\n",
+                           theta_pct, alpha_pct, beta_pct, label);
+            }
+        }
+    }
+}
+
+int main(void)
+{
+    xil_printf("\r\n====================================\r\n");
+    xil_printf("EEG PL-PS BRAM reader started\r\n");
+    xil_printf("BRAM base: 0x%08x\r\n", (unsigned)EEG_BRAM_BASE);
+    xil_printf("FS assumption=%u Hz, NWIN=%u, NHOP=%u\r\n",
+               (unsigned)FS_HZ, (unsigned)NWIN, (unsigned)NHOP);
+    xil_printf("RAW words=%u..%u, PTR word=%u\r\n",
+               (unsigned)RAW_RING_BASE_WORD,
+               (unsigned)(RAW_RING_BASE_WORD + RING_SIZE - 1U),
+               (unsigned)PRODUCER_WORD);
+    xil_printf("====================================\r\n");
+
+    print_bram_debug();
+
+    /* Ignore old data; begin reading from the current producer sequence. */
+    ps_read_sequence = read_producer_sequence();
+    xil_printf("PS read sequence initialized to %u\r\n",
+               (unsigned)ps_read_sequence);
+
+    for (;;) {
+        process_available_samples();
+        print_tgam_status_if_changed();
+    }
+}

@@ -1,0 +1,28 @@
+# Vivado
+*.xpr
+*.rpt
+*.bit
+*.bin
+*.log
+*.jou
+*.hw
+*.zip
+.cache/
+ip_user_files/
+runs/
+srcs/
+sim/
+.autopilot/
+
+# Vitis
+Debug/
+Release/
+*.elf
+*.map
+*.lst
+*.o
+*.out
+*.project
+*.cproject
+.launch
+.settings/

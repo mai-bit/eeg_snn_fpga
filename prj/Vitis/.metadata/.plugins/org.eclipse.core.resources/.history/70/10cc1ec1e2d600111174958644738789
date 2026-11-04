@@ -1,0 +1,337 @@
+
+#include "xil_printf.h"
+#include "xil_io.h"
+#include "xil_cache.h"
+#include "sleep.h"
+#include "stdint.h"
+
+/* =========================================
+ * BRAM configuration
+ * ========================================= */
+
+#define BRAM_BASE       0x40000000U
+
+#define RAW_START       256U
+#define RAW_LENGTH      1024U
+
+#define PTR_ADDR        1280U
+#define BAND_START      1281U
+#define STATUS_ADDR     1289U
+
+#define BRAM_BYTES      8192U
+
+/* =========================================
+ * BRAM read/write functions
+ * ========================================= */
+
+static inline uint32_t bram_read(uint32_t word_addr)
+{
+    return Xil_In32(BRAM_BASE + word_addr * 4U);
+}
+
+static inline void bram_write(uint32_t word_addr,
+                              uint32_t value)
+{
+    Xil_Out32(BRAM_BASE + word_addr * 4U, value);
+}
+
+/* =========================================
+ * Cache operation
+ * ========================================= */
+
+static void bram_cache_invalidate(void)
+{
+    Xil_DCacheInvalidateRange(BRAM_BASE, BRAM_BYTES);
+}
+
+/* =========================================
+ * Convert signed 16-bit EEG
+ * ========================================= */
+
+static int32_t raw_to_signed(uint32_t value)
+{
+    int32_t raw = (int32_t)(value & 0xFFFFU);
+
+    if (raw >= 32768)
+        raw -= 65536;
+
+    return raw;
+}
+
+/* =========================================
+ * Test PS write and read BRAM
+ * ========================================= */
+
+static void bram_write_read_test(void)
+{
+    uint32_t write_value;
+    uint32_t read_value;
+
+    xil_printf("\r\n");
+    xil_printf("====================================\r\n");
+    xil_printf("       PS BRAM WRITE READ TEST\r\n");
+    xil_printf("====================================\r\n");
+
+    /* Test address 1280 */
+    write_value = 0x12345678U;
+
+    bram_write(1280U, write_value);
+
+    bram_cache_invalidate();
+
+    read_value = bram_read(1280U);
+
+    xil_printf("ADDR 1280: write=0x%08x read=0x%08x\r\n",
+               (unsigned int)write_value,
+               (unsigned int)read_value);
+
+    if (read_value == write_value)
+        xil_printf("ADDR 1280: PASS\r\n");
+    else
+        xil_printf("ADDR 1280: FAIL\r\n");
+
+    /* Test address 1281 */
+    write_value = 0x0000001BU;
+
+    bram_write(1281U, write_value);
+
+    bram_cache_invalidate();
+
+    read_value = bram_read(1281U);
+
+    xil_printf("ADDR 1281: write=0x%08x read=0x%08x\r\n",
+               (unsigned int)write_value,
+               (unsigned int)read_value);
+
+    if (read_value == write_value)
+        xil_printf("ADDR 1281: PASS\r\n");
+    else
+        xil_printf("ADDR 1281: FAIL\r\n");
+
+    xil_printf("====================================\r\n");
+}
+
+/* =========================================
+ * Print Raw EEG data
+ * ========================================= */
+
+static void print_raw_eeg(void)
+{
+    uint32_t i;
+    uint32_t value;
+
+    uint32_t nonzero_count = 0;
+
+    int32_t raw;
+    int32_t min_value = 32767;
+    int32_t max_value = -32768;
+
+    xil_printf("\r\n========== RAW EEG DEBUG ==========\r\n");
+
+    for (i = 0; i < RAW_LENGTH; i++)
+    {
+        value = bram_read(RAW_START + i);
+
+        raw = raw_to_signed(value);
+
+        if (raw != 0)
+            nonzero_count++;
+
+        if (raw < min_value)
+            min_value = raw;
+
+        if (raw > max_value)
+            max_value = raw;
+    }
+
+    xil_printf("Nonzero count = %u\r\n",
+               (unsigned int)nonzero_count);
+
+    xil_printf("Minimum = %d\r\n", (int)min_value);
+
+    xil_printf("Maximum = %d\r\n", (int)max_value);
+
+    xil_printf("\r\nFirst 16 samples:\r\n");
+
+    for (i = 0; i < 16; i++)
+    {
+        value = bram_read(RAW_START + i);
+
+        raw = raw_to_signed(value);
+
+        xil_printf("RAW[%u] addr[%u] = 0x%08x signed=%d\r\n",
+                   (unsigned int)i,
+                   (unsigned int)(RAW_START + i),
+                   (unsigned int)value,
+                   (int)raw);
+    }
+}
+
+/* =========================================
+ * Print EEG Power bands
+ * ========================================= */
+
+static void print_eeg_bands(void)
+{
+    uint32_t i;
+    uint32_t value;
+
+    xil_printf("\r\n========== EEG POWER BANDS ==========\r\n");
+
+    for (i = 0; i < 8; i++)
+    {
+        value = bram_read(BAND_START + i);
+
+        xil_printf("Band[%u] addr[%u] = %u (0x%08x)\r\n",
+                   (unsigned int)i,
+                   (unsigned int)(BAND_START + i),
+                   (unsigned int)value,
+                   (unsigned int)value);
+    }
+}
+
+/* =========================================
+ * Print TGAM status
+ * ========================================= */
+
+static void print_tgam_status(void)
+{
+    uint32_t status;
+
+    uint32_t attention;
+    uint32_t meditation;
+    uint32_t signal_quality;
+    uint32_t status_sequence;
+
+    status = bram_read(STATUS_ADDR);
+
+    attention       = (status >> 24) & 0xFFU;
+    meditation      = (status >> 16) & 0xFFU;
+    signal_quality  = (status >> 8)  & 0xFFU;
+    status_sequence = status & 0xFFU;
+
+    xil_printf("\r\n========== TGAM STATUS ==========\r\n");
+
+    xil_printf("STATUS[1289] = 0x%08x\r\n",
+               (unsigned int)status);
+
+    xil_printf("Attention = %u\r\n",
+               (unsigned int)attention);
+
+    xil_printf("Meditation = %u\r\n",
+               (unsigned int)meditation);
+
+    xil_printf("Signal Quality = %u\r\n",
+               (unsigned int)signal_quality);
+
+    xil_printf("Status Sequence = %u\r\n",
+               (unsigned int)status_sequence);
+}
+
+/* =========================================
+ * Read producer pointer
+ * ========================================= */
+
+static uint32_t read_producer(void)
+{
+    return bram_read(PTR_ADDR);
+}
+
+/* =========================================
+ * Complete BRAM diagnostic
+ * ========================================= */
+
+static void bram_diagnostic(void)
+{
+    uint32_t seq_before;
+    uint32_t seq_after;
+
+    bram_cache_invalidate();
+
+    seq_before = read_producer();
+
+    xil_printf("\r\n");
+    xil_printf("========== BRAM DIAGNOSTIC ==========\r\n");
+
+    xil_printf("Producer before = %u (0x%08x)\r\n",
+               (unsigned int)seq_before,
+               (unsigned int)seq_before);
+
+    print_raw_eeg();
+
+    print_eeg_bands();
+
+    print_tgam_status();
+
+    bram_cache_invalidate();
+
+    seq_after = read_producer();
+
+    xil_printf("\r\nProducer after = %u (0x%08x)\r\n",
+               (unsigned int)seq_after,
+               (unsigned int)seq_after);
+
+    if (seq_after != seq_before)
+        xil_printf("Producer changed!\r\n");
+    else
+        xil_printf("Producer unchanged!\r\n");
+
+    xil_printf("=====================================\r\n");
+}
+
+/* =========================================
+ * Main
+ * ========================================= */
+
+int main(void)
+{
+    xil_printf("\r\n");
+    xil_printf("====================================\r\n");
+    xil_printf("       EEG PL-PS BRAM DIAGNOSTIC\r\n");
+    xil_printf("====================================\r\n");
+
+    xil_printf("BRAM BASE = 0x%08x\r\n",
+               (unsigned int)BRAM_BASE);
+
+    xil_printf("RAW START = %u\r\n",
+               (unsigned int)RAW_START);
+
+    xil_printf("RAW LENGTH = %u\r\n",
+               (unsigned int)RAW_LENGTH);
+
+    xil_printf("PRODUCER ADDRESS = %u\r\n",
+               (unsigned int)PTR_ADDR);
+
+    xil_printf("BAND ADDRESS = %u ~ %u\r\n",
+               (unsigned int)BAND_START,
+               (unsigned int)(BAND_START + 7U));
+
+    xil_printf("STATUS ADDRESS = %u\r\n",
+               (unsigned int)STATUS_ADDR);
+
+    /*
+     * Step 1:
+     * Test PS write/read.
+     *
+     * WARNING:
+     * This overwrites BRAM words 1280 and 1281.
+     */
+
+    bram_write_read_test();
+
+    xil_printf("\r\nWaiting for BRAM data...\r\n");
+
+    /*
+     * Step 2:
+     * Continuously monitor PL data.
+     */
+
+    while (1)
+    {
+        bram_diagnostic();
+
+        sleep(1);
+    }
+
+    return 0;
+}

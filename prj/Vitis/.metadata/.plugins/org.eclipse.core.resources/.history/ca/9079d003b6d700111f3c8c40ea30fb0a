@@ -1,0 +1,53 @@
+#include "xparameters.h"
+#include "xil_printf.h"
+#include "xil_io.h"
+#include "xil_cache.h"
+#include "stdint.h"
+#include "sleep.h"
+
+#define BRAM_BASE XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR
+
+static uint32_t read_word(uint32_t index)
+{
+    uint32_t addr = BRAM_BASE + index * 4U;
+
+    Xil_DCacheInvalidateRange(addr, 4);
+
+    return Xil_In32(addr);
+}
+
+int main(void)
+{
+    xil_printf("\r\n===== EEG BRAM DEBUG =====\r\n");
+
+    while (1)
+    {
+        xil_printf("\r\n");
+
+        xil_printf("Raw[256]  = %08lx\r\n",
+            (unsigned long)read_word(256));
+
+        xil_printf("Raw[320]  = %08lx\r\n",
+            (unsigned long)read_word(320));
+
+        xil_printf("Raw[1279] = %08lx\r\n",
+            (unsigned long)read_word(1279));
+
+        xil_printf("Producer  = %08lx\r\n",
+            (unsigned long)read_word(1280));
+
+        for (uint32_t i = 0; i < 8; i++)
+        {
+            xil_printf("Band[%lu] = %08lx\r\n",
+                (unsigned long)i,
+                (unsigned long)read_word(1281 + i));
+        }
+
+        xil_printf("Status    = %08lx\r\n",
+            (unsigned long)read_word(1289));
+
+        sleep(1);
+    }
+
+    return 0;
+}

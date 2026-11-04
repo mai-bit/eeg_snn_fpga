@@ -1,0 +1,83 @@
+
+#include "xparameters.h"
+#include "xil_printf.h"
+#include "xil_io.h"
+#include "xil_cache.h"
+#include "sleep.h"
+#include "stdint.h"
+
+// =====================================================
+// BRAM 地址配置
+// =====================================================
+
+// 根据你的 Vivado Address Editor 配置
+#define BRAM_BASE       0x40000000U
+
+// BRAM word index
+#define RAW_START       256U
+#define RAW_END         1279U
+#define PRODUCER_INDEX  1280U
+
+// word index 转换为 byte address
+#define BRAM_ADDR(index) (BRAM_BASE + ((uint32_t)(index) * 4U))
+
+// =====================================================
+// BRAM 读取函数
+// =====================================================
+
+static uint32_t bram_read(uint32_t word_index)
+{
+    uint32_t addr = BRAM_ADDR(word_index);
+
+    // 使对应缓存行失效，避免读取到旧数据
+    Xil_DCacheInvalidateRange(addr, 4U);
+
+    // 通过 AXI BRAM Controller 读取 BRAM
+    return Xil_In32(addr);
+}
+
+// =====================================================
+// 主函数
+// =====================================================
+
+#include "xparameters.h"
+#include "xil_printf.h"
+#include "xil_io.h"
+#include "xil_cache.h"
+#include "sleep.h"
+#include <stdint.h>
+
+#define BRAM_BASE 0x40000000U
+
+static uint32_t read_bram(uint32_t index)
+{
+    uint32_t addr = BRAM_BASE + index * 4U;
+
+    Xil_DCacheInvalidateRange(addr, 4U);
+
+    return Xil_In32(addr);
+}
+
+int main(void)
+{
+    while (1)
+    {
+        xil_printf("\r\n===== BRAM TEST =====\r\n");
+
+        xil_printf("BRAM[0]    = %08lx\r\n",
+                   (unsigned long)read_bram(0));
+
+        xil_printf("BRAM[814]  = %08lx\r\n",
+                   (unsigned long)read_bram(814));
+
+        xil_printf("BRAM[1280] = %08lx\r\n",
+                   (unsigned long)read_bram(1280));
+
+        sleep(1);
+    }
+
+    return 0;
+}
+
+    return 0;
+}

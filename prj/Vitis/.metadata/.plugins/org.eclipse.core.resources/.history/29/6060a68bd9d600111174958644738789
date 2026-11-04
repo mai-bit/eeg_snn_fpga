@@ -1,0 +1,154 @@
+
+#include "xil_printf.h"
+#include "xil_io.h"
+#include "xil_cache.h"
+#include "sleep.h"
+#include "stdint.h"
+
+#define BRAM_BASE       0x40000000U
+
+#define RAW_START       256U
+#define RAW_LENGTH      1024U
+#define PTR_ADDR        1280U
+#define BAND_START      1281U
+#define STATUS_ADDR     1289U
+
+#define BRAM_BYTES      8192U
+
+static uint32_t bram_read(uint32_t word_addr)
+{
+    return Xil_In32(BRAM_BASE + word_addr * 4U);
+}
+
+static int32_t raw_to_signed(uint32_t value)
+{
+    int32_t raw = (int32_t)(value & 0xFFFFU);
+
+    if (raw >= 32768)
+        raw -= 65536;
+
+    return raw;
+}
+
+static void invalidate_bram_cache(void)
+{
+    Xil_DCacheInvalidateRange(BRAM_BASE, BRAM_BYTES);
+}
+
+static void dump_bram(void)
+{
+    uint32_t i;
+    uint32_t value;
+    uint32_t seq1, seq2;
+    uint32_t nonzero = 0;
+    int32_t raw;
+    int32_t min_value = 32767;
+    int32_t max_value = -32768;
+
+    /* Invalidate cache before reading BRAM */
+    invalidate_bram_cache();
+
+    xil_printf("\r\n========== BRAM TEST ==========\r\n");
+
+    /* Read producer sequence */
+    seq1 = bram_read(PTR_ADDR);
+
+    xil_printf("Producer[1280] = %u (0x%08x)\r\n",
+               (unsigned int)seq1,
+               (unsigned int)seq1);
+
+    /* Print all 8 EEG power bands */
+    xil_printf("\r\nEEG POWER BANDS:\r\n");
+
+    for (i = 0; i < 8; i++)
+    {
+        value = bram_read(BAND_START + i);
+
+        xil_printf("ADDR[%u] = %u (0x%08x)\r\n",
+                   (unsigned int)(BAND_START + i),
+                   (unsigned int)value,
+                   (unsigned int)value);
+    }
+
+    /* Print status */
+    value = bram_read(STATUS_ADDR);
+
+    xil_printf("\r\nSTATUS[1289] = 0x%08x\r\n",
+               (unsigned int)value);
+
+    xil_printf("Attention = %u\r\n",
+               (unsigned int)((value >> 24) & 0xFF));
+
+    xil_printf("Meditation = %u\r\n",
+               (unsigned int)((value >> 16) & 0xFF));
+
+    xil_printf("Signal Quality = %u\r\n",
+               (unsigned int)((value >> 8) & 0xFF));
+
+    xil_printf("Status Sequence = %u\r\n",
+               (unsigned int)(value & 0xFF));
+
+    /* Scan all raw samples */
+    for (i = 0; i < RAW_LENGTH; i++)
+    {
+        value = bram_read(RAW_START + i);
+        raw = raw_to_signed(value);
+
+        if (raw != 0)
+            nonzero++;
+
+        if (raw < min_value)
+            min_value = raw;
+
+        if (raw > max_value)
+            max_value = raw;
+    }
+
+    xil_printf("\r\nRAW EEG:\r\n");
+    xil_printf("Nonzero count = %u\r\n",
+               (unsigned int)nonzero);
+
+    xil_printf("Minimum = %d\r\n", (int)min_value);
+    xil_printf("Maximum = %d\r\n", (int)max_value);
+
+    for (i = 0; i < 16; i++)
+    {
+        value = bram_read(RAW_START + i);
+
+        xil_printf("RAW[%u] = 0x%08x signed=%d\r\n",
+                   (unsigned int)i,
+                   (unsigned int)value,
+                   (int)raw_to_signed(value));
+    }
+
+    /* Read sequence again to check whether PL is updating */
+    invalidate_bram_cache();
+    seq2 = bram_read(PTR_ADDR);
+
+    xil_printf("\r\nProducer before = %u\r\n",
+               (unsigned int)seq1);
+
+    xil_printf("Producer after  = %u\r\n",
+               (unsigned int)seq2);
+
+    xil_printf("===============================\r\n");
+}
+
+int main(void)
+{
+    xil_printf("\r\n");
+    xil_printf("====================================\r\n");
+    xil_printf("       EEG PL-PS BRAM DIAGNOSTIC\r\n");
+    xil_printf("====================================\r\n");
+
+    xil_printf("BRAM BASE = 0x%08x\r\n",
+               (unsigned int)BRAM_BASE);
+
+    while (1)
+    {
+        dump_bram();
+        sleep(1);
+    }
+
+    return 0;
+}

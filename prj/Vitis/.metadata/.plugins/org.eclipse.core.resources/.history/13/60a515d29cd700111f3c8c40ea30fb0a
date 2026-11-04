@@ -1,0 +1,6 @@
+for (int i = 0; i < 10; i++) {
+    Xil_DCacheInvalidateRange(BRAM_BASE + 1280 * 4, 32);
+    u32 value = Xil_In32(BRAM_BASE + 1280 * 4);
+    xil_printf("Producer = %lu\r\n", (unsigned long)value);
+    usleep(500000);
+}

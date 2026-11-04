@@ -1,0 +1,30 @@
+#include "xparameters.h"
+#include "xil_printf.h"
+#include "xil_io.h"
+#include "stdint.h"
+
+#define BRAM_BASE XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR
+
+int main(void)
+{
+    uint32_t value;
+
+    xil_printf("\r\n");
+    xil_printf("===== BRAM TEST =====\r\n");
+
+    xil_printf("BRAM BASE = 0x%08lx\r\n",
+               (unsigned long)BRAM_BASE);
+
+    xil_printf("Before BRAM read\r\n");
+
+    value = Xil_In32(BRAM_BASE);
+
+    xil_printf("After BRAM read\r\n");
+
+    xil_printf("BRAM DATA = 0x%08lx\r\n",
+               (unsigned long)value);
+
+    while (1);
+
+    return 0;
+}

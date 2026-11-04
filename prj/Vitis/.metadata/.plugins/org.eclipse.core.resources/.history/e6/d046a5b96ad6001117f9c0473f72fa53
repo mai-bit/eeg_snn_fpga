@@ -1,0 +1,125 @@
+        sample_window[NWIN - 1U] = sample;
+    }
+}
+
+/* Print TGAM eSense and band-power words when status sequence changes. */
+static void print_tgam_status(void)
+{
+    static int first = 1;
+    static u8 last_status_seq = 0xFFU;
+
+    u32 status = BRAM_READ(ADDR_STAT);
+    u8 sequence = (u8)(status & 0xFFU);
+
+    if (first || (sequence != last_status_seq)) {
+        u32 band[8];
+        u32 i;
+
+        for (i = 0U; i < 8U; ++i) {
+            band[i] = BRAM_READ(ADDR_BAND0 + i) & 0x00FFFFFFU;
+        }
+
+        /* Confirm status did not change while reading the band words. */
+        if (BRAM_READ(ADDR_STAT) == status) {
+            first = 0;
+            last_status_seq = sequence;
+
+            xil_printf("E,%u,%u,%u,%u",
+                       (unsigned)((status >> 24) & 0xFFU),
+                       (unsigned)((status >> 16) & 0xFFU),
+                       (unsigned)((status >> 8) & 0xFFU),
+                       (unsigned)sequence);
+
+            for (i = 0U; i < 8U; ++i) {
+                xil_printf(",%lu", (unsigned long)band[i]);
+            }
+            xil_printf("\r\n");
+        }
+    }
+}
+
+/* Process every sample that PL has produced since the last PS read. */
+static void process_new_samples(void)
+{
+    u16 write_seq = read_write_sequence();
+    u16 available = (u16)(write_seq - rd_seq);
+
+    if (available > RING_SIZE) {
+        xil_printf("#WARN,ring_overrun,available=%u\r\n",
+                   (unsigned)available);
+        rd_seq = (u16)(write_seq - RING_SIZE);
+        available = (u16)RING_SIZE;
+    }
+
+    while (available > 0U) {
+        u32 ring_index = ((u32)rd_seq) & RING_MASK;
+        u32 raw_word = BRAM_READ(ADDR_RING_BASE + ring_index);
+        s16 raw_sample = (s16)(raw_word & 0xFFFFU);
+
+        push_sample(raw_sample);
+
+        ++rd_seq;
+        --available;
+        ++samples_since_hop;
+
+        if ((window_fill >= NWIN) && (samples_since_hop >= NHOP)) {
+            float score[3];
+            float total;
+            int winner;
+            int theta_pct;
+            int alpha_pct;
+            int beta_pct;
+            const char *label;
+
+            samples_since_hop = 0U;
+            calculate_goertzel();
+            winner = calculate_band_scores(score);
+            total = score[0] + score[1] + score[2];
+
+            if ((winner < 0) || (total <= 0.0f)) {
+                xil_printf("P,0,0,0,NONE\r\n");
+            } else {
+                theta_pct = (int)(100.0f * score[0] / total);
+                alpha_pct = (int)(100.0f * score[1] / total);
+                beta_pct = 100 - theta_pct - alpha_pct;
+
+                if (winner == 0) {
+                    label = "THETA";
+                } else if (winner == 1) {
+                    label = "ALPHA";
+                } else {
+                    label = "BETA";
+                }
+
+                xil_printf("P,%d,%d,%d,%s\r\n",
+                           theta_pct, alpha_pct, beta_pct, label);
+            }
+        }
+    }
+}
+
+int main(void)
+{
+    xil_printf("\r\n================================\r\n");
+    xil_printf("EEG PL-PS BRAM reader started\r\n");
+    xil_printf("BRAM base: 0x%08x\r\n", (unsigned)EEG_BRAM_BASE);
+    xil_printf("FS assumption=%d Hz, NWIN=%d, NHOP=%d\r\n",
+               (int)FS_HZ, (int)NWIN, (int)NHOP);
+    xil_printf("BRAM map: RAW=256..1279, PTR=1280\r\n");
+    xil_printf("================================\r\n");
+
+    /* Initial BRAM dump: use this to verify whether PL is writing samples. */
+    print_bram_debug();
+
+    /* Ignore old ring data and begin at the current PL producer sequence. */
+    rd_seq = read_write_sequence();
+    xil_printf("PS read sequence initialized to %u\r\n", (unsigned)rd_seq);
+
+    for (;;) {
+        process_new_samples();
+        print_tgam_status();
+    }
+
+    /* Not reached. */
+    /* return 0; */
+}

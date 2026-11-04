@@ -1,0 +1,262 @@
+
+#include "xparameters.h"
+#include "xil_printf.h"
+#include "xil_io.h"
+#include "xil_cache.h"
+#include "sleep.h"
+
+#include <stdint.h>
+
+/* =========================================================
+   BRAM Configuration
+   ========================================================= */
+
+#define BRAM_BASE       XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR
+
+#define RAW_BASE        256U
+#define RAW_LENGTH      1024U
+
+#define PRODUCER_ADDR   1280U
+
+#define DELTA_ADDR      1281U
+#define THETA_ADDR      1282U
+#define LOW_ALPHA_ADDR  1283U
+#define HIGH_ALPHA_ADDR 1284U
+#define LOW_BETA_ADDR   1285U
+#define HIGH_BETA_ADDR  1286U
+#define LOW_GAMMA_ADDR  1287U
+#define MID_GAMMA_ADDR  1288U
+
+#define STATUS_ADDR     1289U
+
+
+/* =========================================================
+   Read BRAM Word
+   ========================================================= */
+
+static uint32_t bram_read(uint32_t word_index)
+{
+    uint32_t address;
+
+    address = BRAM_BASE + word_index * 4U;
+
+    /*
+     * Invalidate cache before reading PL-updated BRAM.
+     */
+    Xil_DCacheInvalidateRange(address, 4U);
+
+    return Xil_In32(address);
+}
+
+
+/* =========================================================
+   Convert Raw EEG to Signed 16-bit
+   ========================================================= */
+
+static int32_t raw_to_signed(uint32_t value)
+{
+    return (int32_t)(int16_t)(value & 0xFFFFU);
+}
+
+
+/* =========================================================
+   Print EEG Bands
+   ========================================================= */
+
+static void print_bands(void)
+{
+    uint32_t delta;
+    uint32_t theta;
+    uint32_t low_alpha;
+    uint32_t high_alpha;
+    uint32_t low_beta;
+    uint32_t high_beta;
+    uint32_t low_gamma;
+    uint32_t middle_gamma;
+
+    delta       = bram_read(DELTA_ADDR) & 0xFFFFFFU;
+    theta       = bram_read(THETA_ADDR) & 0xFFFFFFU;
+    low_alpha   = bram_read(LOW_ALPHA_ADDR) & 0xFFFFFFU;
+    high_alpha  = bram_read(HIGH_ALPHA_ADDR) & 0xFFFFFFU;
+    low_beta    = bram_read(LOW_BETA_ADDR) & 0xFFFFFFU;
+    high_beta   = bram_read(HIGH_BETA_ADDR) & 0xFFFFFFU;
+    low_gamma   = bram_read(LOW_GAMMA_ADDR) & 0xFFFFFFU;
+    middle_gamma = bram_read(MID_GAMMA_ADDR) & 0xFFFFFFU;
+
+    xil_printf("\r\n========== EEG POWER ==========\r\n");
+
+    xil_printf("Delta       = %08x\r\n", (unsigned int)delta);
+    xil_printf("Theta       = %08x\r\n", (unsigned int)theta);
+    xil_printf("Low Alpha   = %08x\r\n", (unsigned int)low_alpha);
+    xil_printf("High Alpha  = %08x\r\n", (unsigned int)high_alpha);
+    xil_printf("Low Beta    = %08x\r\n", (unsigned int)low_beta);
+    xil_printf("High Beta   = %08x\r\n", (unsigned int)high_beta);
+    xil_printf("Low Gamma   = %08x\r\n", (unsigned int)low_gamma);
+    xil_printf("Middle Gamma= %08x\r\n", (unsigned int)middle_gamma);
+}
+
+
+/* =========================================================
+   Print Status
+   ========================================================= */
+
+static void print_status(void)
+{
+    uint32_t status;
+
+    status = bram_read(STATUS_ADDR);
+
+    /*
+     * RTL format:
+     * {attention, meditation, signal_quality, status_seq}
+     */
+
+    uint8_t attention;
+    uint8_t meditation;
+    uint8_t signal_quality;
+    uint8_t status_seq;
+
+    attention     = (status >> 24) & 0xFFU;
+    meditation    = (status >> 16) & 0xFFU;
+    signal_quality = (status >> 8) & 0xFFU;
+    status_seq    = status & 0xFFU;
+
+    xil_printf("\r\n========== STATUS ==========\r\n");
+
+    xil_printf("Attention     = %d\r\n", (int)attention);
+    xil_printf("Meditation    = %d\r\n", (int)meditation);
+    xil_printf("Signal Quality= %d\r\n", (int)signal_quality);
+    xil_printf("Status Seq    = %d\r\n", (int)status_seq);
+
+    xil_printf("Status HEX    = %08x\r\n",
+               (unsigned int)status);
+}
+
+
+/* =========================================================
+   Print Raw EEG Buffer
+   ========================================================= */
+
+static void print_raw_buffer(void)
+{
+    uint32_t i;
+    uint32_t value;
+    int32_t raw;
+
+    xil_printf("\r\n========== RAW EEG BUFFER ==========\r\n");
+
+    for (i = 0; i < RAW_LENGTH; i++)
+    {
+        value = bram_read(RAW_BASE + i);
+
+        raw = raw_to_signed(value);
+
+        xil_printf("Raw[%d] = %d  HEX=%08x\r\n",
+                   (int)i,
+                   (int)raw,
+                   (unsigned int)value);
+    }
+}
+
+
+/* =========================================================
+   Main
+   ========================================================= */
+
+int main(void)
+{
+    uint32_t producer;
+    uint32_t raw_index;
+    uint32_t raw_value;
+
+    int32_t raw_sample;
+
+    xil_printf("\r\n");
+    xil_printf("====================================\r\n");
+    xil_printf("       EEG BRAM READER START        \r\n");
+    xil_printf("====================================\r\n");
+
+    xil_printf("BRAM BASE = %08x\r\n",
+               (unsigned int)BRAM_BASE);
+
+    while (1)
+    {
+        xil_printf("\r\n========== EEG DEBUG ==========\r\n");
+
+        /*
+         * Read Producer pointer
+         */
+
+        producer = bram_read(PRODUCER_ADDR);
+
+        xil_printf("Producer = %u (0x%08x)\r\n",
+                   (unsigned int)producer,
+                   (unsigned int)producer);
+
+        /*
+         * Read one Raw sample.
+         *
+         * Producer is the next-write position.
+         * The most recently written sample is one position before it.
+         */
+
+        if (producer > 0U)
+        {
+            raw_index = (producer - 1U) % RAW_LENGTH;
+        }
+        else
+        {
+            raw_index = RAW_LENGTH - 1U;
+        }
+
+        raw_value = bram_read(RAW_BASE + raw_index);
+
+        raw_sample = raw_to_signed(raw_value);
+
+        xil_printf("Latest Raw Index = %u\r\n",
+                   (unsigned int)raw_index);
+
+        xil_printf("Latest Raw HEX   = %08x\r\n",
+                   (unsigned int)raw_value);
+
+        xil_printf("Latest Raw Value = %d\r\n",
+                   (int)raw_sample);
+
+        /*
+         * Read selected Raw locations for debugging
+         */
+
+        xil_printf("\r\n========== RAW CHECK ==========\r\n");
+
+        xil_printf("Raw[256]  = %08x\r\n",
+                   (unsigned int)bram_read(256U));
+
+        xil_printf("Raw[320]  = %08x\r\n",
+                   (unsigned int)bram_read(320U));
+
+        xil_printf("Raw[1279] = %08x\r\n",
+                   (unsigned int)bram_read(1279U));
+
+        /*
+         * Read EEG Power bands
+         */
+
+        print_bands();
+
+        /*
+         * Read status
+         */
+
+        print_status();
+
+        /*
+         * Wait one second
+         */
+
+        xil_printf("\r\n==============================\r\n");
+
+        sleep(1);
+    }
+
+    return 0;
+}

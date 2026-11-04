@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="D:/FPGA/prj/eeg_brain_snn/prj/eeg_pl_top.hw/hw_1/wave/hw_ila_data_3/hw_ila_data_3.wdb" id="1">
+         <top_modules>
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="9fs"></ZoomEndTime>
+      <Cursor1Time time="0fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="276"></NameColumnWidth>
+      <ValueColumnWidth column_width="104"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="12" />
+   <wvobject fp_name="SYSTEM_i/eeg_pl_top_0/inst/ila_band_pending_valid" type="logic">
+      <obj_property name="ElementShortName">SYSTEM_i/eeg_pl_top_0/inst/ila_band_pending_valid</obj_property>
+      <obj_property name="ObjectShortName">ila_band_pending_valid</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject fp_name="SYSTEM_i/eeg_pl_top_0/inst/ila_big_packet_valid" type="logic">
+      <obj_property name="ElementShortName">SYSTEM_i/eeg_pl_top_0/inst/ila_big_packet_valid</obj_property>
+      <obj_property name="ObjectShortName">ila_big_packet_valid</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject fp_name="SYSTEM_i/eeg_pl_top_0/inst/ila_bram_addr" type="array">
+      <obj_property name="ElementShortName">SYSTEM_i/eeg_pl_top_0/inst/ila_bram_addr[10:0]</obj_property>
+      <obj_property name="ObjectShortName">ila_bram_addr[10:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject fp_name="SYSTEM_i/eeg_pl_top_0/inst/ila_bram_data" type="array">
+      <obj_property name="ElementShortName">SYSTEM_i/eeg_pl_top_0/inst/ila_bram_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ila_bram_data[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject fp_name="SYSTEM_i/eeg_pl_top_0/inst/ila_bram_we" type="array">
+      <obj_property name="ElementShortName">SYSTEM_i/eeg_pl_top_0/inst/ila_bram_we[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ila_bram_we[3:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject fp_name="SYSTEM_i/eeg_pl_top_0/inst/ila_raw_pending_valid" type="logic">
+      <obj_property name="ElementShortName">SYSTEM_i/eeg_pl_top_0/inst/ila_raw_pending_valid</obj_property>
+      <obj_property name="ObjectShortName">ila_raw_pending_valid</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject fp_name="SYSTEM_i/eeg_pl_top_0/inst/ila_rawdata" type="array">
+      <obj_property name="ElementShortName">SYSTEM_i/eeg_pl_top_0/inst/ila_rawdata[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ila_rawdata[15:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject fp_name="SYSTEM_i/eeg_pl_top_0/inst/ila_rawdata_valid" type="logic">
+      <obj_property name="ElementShortName">SYSTEM_i/eeg_pl_top_0/inst/ila_rawdata_valid</obj_property>
+      <obj_property name="ObjectShortName">ila_rawdata_valid</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject fp_name="SYSTEM_i/eeg_pl_top_0/inst/ila_rx_byte" type="array">
+      <obj_property name="ElementShortName">SYSTEM_i/eeg_pl_top_0/inst/ila_rx_byte[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ila_rx_byte[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject fp_name="SYSTEM_i/eeg_pl_top_0/inst/ila_rx_valid" type="logic">
+      <obj_property name="ElementShortName">SYSTEM_i/eeg_pl_top_0/inst/ila_rx_valid</obj_property>
+      <obj_property name="ObjectShortName">ila_rx_valid</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject fp_name="SYSTEM_i/eeg_pl_top_0/inst/ila_state" type="array">
+      <obj_property name="ElementShortName">SYSTEM_i/eeg_pl_top_0/inst/ila_state[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ila_state[3:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject fp_name="SYSTEM_i/eeg_pl_top_0/inst/ila_write_seq" type="array">
+      <obj_property name="ElementShortName">SYSTEM_i/eeg_pl_top_0/inst/ila_write_seq[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ila_write_seq[15:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+</wave_config>

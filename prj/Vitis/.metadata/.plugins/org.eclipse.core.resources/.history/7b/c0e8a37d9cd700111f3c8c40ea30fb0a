@@ -1,0 +1,126 @@
+#include "xparameters.h"
+#include "xil_printf.h"
+#include "xil_io.h"
+#include "xil_cache.h"
+#include "sleep.h"
+#include <stdint.h>
+
+#define BRAM_BASE       0x40000000U
+
+#define RAW_START       256U
+#define RAW_LENGTH      1024U
+
+#define PRODUCER_ADDR   1280U
+#define BAND_START      1281U
+#define STATUS_ADDR     1289U
+
+#define BRAM_BYTES      (2048U * 4U)
+
+static uint32_t bram_read(uint32_t word_addr)
+{
+    return Xil_In32(BRAM_BASE + word_addr * 4U);
+}
+
+static void invalidate_bram_cache(void)
+{
+    Xil_DCacheInvalidateRange(BRAM_BASE, BRAM_BYTES);
+}
+
+static uint32_t read_fresh(uint32_t word_addr)
+{
+    Xil_DCacheInvalidateRange(BRAM_BASE + word_addr * 4U, 4U);
+    return Xil_In32(BRAM_BASE + word_addr * 4U);
+}
+
+static void print_producer(void)
+{
+    uint32_t p = read_fresh(PRODUCER_ADDR);
+
+    xil_printf("Producer = %lu (0x%08lx)\r\n",
+               (unsigned long)p,
+               (unsigned long)p);
+}
+
+static void print_raw(void)
+{
+    uint32_t nonzero = 0;
+
+    xil_printf("\r\n========== RAW BRAM ==========\r\n");
+
+    for (uint32_t i = 0; i < RAW_LENGTH; i++)
+    {
+        uint32_t addr = RAW_START + i;
+        uint32_t value = read_fresh(addr);
+
+        if (value != 0)
+        {
+            int32_t raw = (int16_t)(value & 0xFFFFU);
+
+            xil_printf("RAW[%lu] addr=%lu data=0x%08lx signed=%ld\r\n",
+                       (unsigned long)i,
+                       (unsigned long)addr,
+                       (unsigned long)value,
+                       (long)raw);
+
+            nonzero++;
+        }
+    }
+
+    xil_printf("Raw nonzero count = %lu / %lu\r\n",
+               (unsigned long)nonzero,
+               (unsigned long)RAW_LENGTH);
+
+    xil_printf("==============================\r\n");
+}
+
+static void print_bands(void)
+{
+    xil_printf("\r\n========== EEG BANDS ==========\r\n");
+
+    for (uint32_t i = 0; i < 8; i++)
+    {
+        uint32_t addr = BAND_START + i;
+        uint32_t value = read_fresh(addr);
+
+        xil_printf("Band[%lu] addr=%lu value=%lu (0x%08lx)\r\n",
+                   (unsigned long)i,
+                   (unsigned long)addr,
+                   (unsigned long)value,
+                   (unsigned long)value);
+    }
+
+    xil_printf("Status[1289] = 0x%08lx\r\n",
+               (unsigned long)read_fresh(STATUS_ADDR));
+
+    xil_printf("===============================\r\n");
+}
+
+int main(void)
+{
+    xil_printf("\r\n");
+    xil_printf("====================================\r\n");
+    xil_printf("       EEG BRAM READ ONLY TEST      \r\n");
+    xil_printf("====================================\r\n");
+
+    xil_printf("BRAM BASE = 0x%08lx\r\n",
+               (unsigned long)BRAM_BASE);
+
+    xil_printf("PS will NOT write to BRAM.\r\n");
+
+    while (1)
+    {
+        invalidate_bram_cache();
+
+        xil_printf("\r\n========== NEW READ ==========\r\n");
+
+        print_producer();
+        print_raw();
+        print_bands();
+
+        xil_printf("========== READ END ==========\r\n");
+
+        sleep(2);
+    }
+
+    return 0;
+}

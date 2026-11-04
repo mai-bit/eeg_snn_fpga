@@ -1,0 +1,184 @@
+!SESSION 2026-11-04 03:41:25.887 -----------------------------------------------
+eclipse.buildId=2020.2
+java.version=11.0.2
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=zh_CN
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+This is a continuation of log file D:\FPGA\prj\eeg_brain_snn\prj\Vitis\.metadata\.bak_0.log
+Created Time: 2026-11-04 03:43:43.891
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.891
+!MESSAGE XSCT Command: [::hsi::utils::get_hw_param_value D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa ps7_cortexa9_1 C_DEBUG_ENABLED], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.893
+!MESSAGE XSCT command with result: [::hsi::utils::get_hw_param_value D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa ps7_cortexa9_1 C_DEBUG_ENABLED], Result: [null, ]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.895
+!MESSAGE XSCT Command: [::hsi::utils::get_hw_param_value D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa ps7_cortexa9_1 C_DEBUG_EVENT_COUNTERS], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.897
+!MESSAGE XSCT command with result: [::hsi::utils::get_hw_param_value D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa ps7_cortexa9_1 C_DEBUG_EVENT_COUNTERS], Result: [null, ]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.898
+!MESSAGE XSCT Command: [::hsi::utils::get_hw_param_value D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa ps7_cortexa9_1 C_DEBUG_LATENCY_COUNTERS], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.899
+!MESSAGE XSCT command with result: [::hsi::utils::get_hw_param_value D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa ps7_cortexa9_1 C_DEBUG_LATENCY_COUNTERS], Result: [null, ]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.900
+!MESSAGE XSCT Command: [::hsi::utils::get_hw_param_value D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa ps7_cortexa9_1 C_DEBUG_COUNTER_WIDTH], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.905
+!MESSAGE XSCT command with result: [::hsi::utils::get_hw_param_value D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa ps7_cortexa9_1 C_DEBUG_COUNTER_WIDTH], Result: [null, ]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.906
+!MESSAGE XSCT Command: [::hsi::utils::get_hw_param_value D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa ps7_cortexa9_1 C_FREQ], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.907
+!MESSAGE XSCT command with result: [::hsi::utils::get_hw_param_value D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa ps7_cortexa9_1 C_FREQ], Result: [null, ]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.907
+!MESSAGE XSCT Command: [::hsi::utils::get_hw_param_value D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa ps7_cortexa9_1 C_CPU_CLK_FREQ_HZ], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.912
+!MESSAGE XSCT command with result: [::hsi::utils::get_hw_param_value D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa ps7_cortexa9_1 C_CPU_CLK_FREQ_HZ], Result: [null, 666666687]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.914
+!MESSAGE XSCT Command: [::hsi::utils::get_connected_periphs D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa ps7_cortexa9_0], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.916
+!MESSAGE XSCT command with result: [::hsi::utils::get_connected_periphs D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa ps7_cortexa9_0], Result: [null, axi_bram_ctrl_0 axi_gpio_0 ps7_afi_0 ps7_afi_1 ps7_afi_2 ps7_afi_3 ps7_coresight_comp_0 ps7_ddr_0 ps7_ddrc_0 ps7_dev_cfg_0 ps7_dma_ns ps7_dma_s ps7_globaltimer_0 ps7_gpv_0 ps7_intc_dist_0 ps7_iop_bus_config_0 ps7_l2cachec_0 ps7_ocmc_0 ps7_pl310_0 ps7_pmu_0 ps7_ram_0 ps7_ram_1 ps7_scuc_0 ps7_scugic_0 ps7_scutimer_0 ps7_scuwdt_0 ps7_slcr_0 ps7_uart_0 ps7_xadc_0]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.921
+!MESSAGE XSCT Command: [::hsi::utils::get_hw_files_on_hw D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa bit], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.923
+!MESSAGE XSCT command with result: [::hsi::utils::get_hw_files_on_hw D:/FPGA/prj/eeg_brain_snn/prj/Vitis/eeg/export/eeg/hw/SYSTEM_wrapper.xsa bit], Result: [null, SYSTEM_wrapper.bit]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:43.925
+!MESSAGE XSCT Command: [connect -url tcp:127.0.0.1:3121], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:46.269
+!MESSAGE XSCT command with result: [connect -url tcp:127.0.0.1:3121], Result: [null, tcfchan#1]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:46.273
+!MESSAGE XSCT Command: [jtag targets -filter {level == 0}], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:47.429
+!MESSAGE XSCT Command: [connect -url tcp:127.0.0.1:3121], Thread: Worker-1: Launching Debugger_eeg_snn-Default
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:49.333
+!MESSAGE XSCT command with result: [jtag targets -filter {level == 0}], Result: [null, ]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:49.334
+!MESSAGE XSCT command with result: [connect -url tcp:127.0.0.1:3121], Result: [null, tcfchan#1]. Thread: Worker-1: Launching Debugger_eeg_snn-Default
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:49.335
+!MESSAGE XSCT Command: [jtag targets -filter {level == 0}], Thread: Worker-1: Launching Debugger_eeg_snn-Default
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:52.335
+!MESSAGE XSCT Command: [jtag targets -filter {level == 0}], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:52.343
+!MESSAGE XSCT command with result: [jtag targets -filter {level == 0}], Result: [null, ]. Thread: Worker-1: Launching Debugger_eeg_snn-Default
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:55.343
+!MESSAGE XSCT Command: [jtag targets -filter {level == 0}], Thread: Worker-1: Launching Debugger_eeg_snn-Default
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:55.345
+!MESSAGE XSCT command with result: [jtag targets -filter {level == 0}], Result: [null, ]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:55.346
+!MESSAGE XSCT Command: [version -server], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:58.348
+!MESSAGE XSCT command with result: [jtag targets -filter {level == 0}], Result: [null, ]. Thread: Worker-1: Launching Debugger_eeg_snn-Default
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:58.349
+!MESSAGE XSCT command with result: [version -server], Result: [null, 2020.2]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:58.349
+!MESSAGE XSCT Command: [version -server], Thread: Worker-1: Launching Debugger_eeg_snn-Default
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:58.349
+!MESSAGE XSCT Command: [version], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:58.351
+!MESSAGE XSCT command with result: [version -server], Result: [null, 2020.2]. Thread: Worker-1: Launching Debugger_eeg_snn-Default
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:58.351
+!MESSAGE XSCT Command: [version], Thread: Worker-1: Launching Debugger_eeg_snn-Default
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:58.352
+!MESSAGE XSCT command with result: [version], Result: [null, xsct 2020.2
+SW Build 3064766 on Wed Nov 18 09:12:45 MST 2020
+Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:58.358
+!MESSAGE XSCT command with result: [version], Result: [null, xsct 2020.2
+SW Build 3064766 on Wed Nov 18 09:12:45 MST 2020
+Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.]. Thread: Worker-1: Launching Debugger_eeg_snn-Default
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:58.361
+!MESSAGE XSCT Command: [jtag targets -filter {level == 0}], Thread: Worker-1: Launching Debugger_eeg_snn-Default
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:43:58.362
+!MESSAGE XSCT Command: [jtag targets -filter {level == 0}], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:44:01.365
+!MESSAGE XSCT command with result: [jtag targets -filter {level == 0}], Result: [null, ]. Thread: Worker-1: Launching Debugger_eeg_snn-Default
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:44:04.365
+!MESSAGE XSCT Command: [jtag targets -filter {level == 0}], Thread: Worker-1: Launching Debugger_eeg_snn-Default
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:44:04.369
+!MESSAGE XSCT command with result: [jtag targets -filter {level == 0}], Result: [null, ]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:44:07.370
+!MESSAGE XSCT Command: [jtag targets -filter {level == 0}], Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:44:07.372
+!MESSAGE XSCT command with result: [jtag targets -filter {level == 0}], Result: [null, ]. Thread: Worker-1: Launching Debugger_eeg_snn-Default
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:44:10.376
+!MESSAGE XSCT command with result: [jtag targets -filter {level == 0}], Result: [null, ]. Thread: Worker-3: Launching SystemDebugger_eeg_snn_system
+!SESSION 2026-11-04 03:50:50.880 -----------------------------------------------
+eclipse.buildId=2020.2
+java.version=11.0.2
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=zh_CN
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY org.eclipse.ui 4 4 2026-11-04 03:50:54.819
+!MESSAGE Plug-in 'org.eclipse.ui.editors' contributed an invalid Menu Extension (Path: 'navigate' is invalid): org.eclipse.ui.edit.text.gotoLastEditPosition
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:50:58.033
+!MESSAGE XSCT Command: [plnx-install-path  ; ::scw::scw_mode gui], Thread: Thread-9
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:50:58.033
+!MESSAGE XSCT Command: [set sdk::sdk_chan tcfchan#0], Thread: Thread-17
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:50:58.041
+!MESSAGE XSCT command with result: [plnx-install-path  ; ::scw::scw_mode gui], Result: [null, ]. Thread: Thread-9
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:50:58.042
+!MESSAGE XSCT command with result: [set sdk::sdk_chan tcfchan#0], Result: [null, tcfchan#0]. Thread: Thread-17
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:50:58.043
+!MESSAGE XSCT Command: [setws D:/FPGA/prj/eeg_brain_snn/prj/Vitis], Thread: Thread-17
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:50:58.045
+!MESSAGE XSCT command with result: [setws D:/FPGA/prj/eeg_brain_snn/prj/Vitis], Result: [null, ]. Thread: Thread-17
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:51:00.610
+!MESSAGE XSCT Command: [::hsi::utils::init_repo], Thread: Worker-3: Initializing s/w repositories
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:51:00.864
+!MESSAGE XSCT command with result: [::hsi::utils::init_repo], Result: [null, ]. Thread: Worker-3: Initializing s/w repositories
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:51:00.865
+!MESSAGE XSCT Command: [set query_var1 $::env(RDI_DATADIR)], Thread: Worker-3: Initializing s/w repositories
+
+!ENTRY com.xilinx.sdk.utils 0 0 2026-11-04 03:51:00.867
+!MESSAGE XSCT command with result: [set query_var1 $::env(RDI_DATADIR)], Result: [null, D:/zdyz/vivado/Vitis/2020.2/data]. Thread: Worker-3: Initializing s/w repositories

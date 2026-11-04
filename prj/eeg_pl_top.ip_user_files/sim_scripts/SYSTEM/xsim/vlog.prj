@@ -1,0 +1,14 @@
+verilog xil_defaultlib --include "D:/zdyz/vivado/Vivado/2020.2/data/xilinx_vip/include" --include "../../../../eeg_pl_top.gen/sources_1/bd/SYSTEM/ipshared/ec67/hdl" --include "../../../../eeg_pl_top.gen/sources_1/bd/SYSTEM/ipshared/34f8/hdl" \
+"../../../bd/SYSTEM/ip/SYSTEM_processing_system7_0_0/sim/SYSTEM_processing_system7_0_0.v" \
+"../../../bd/SYSTEM/ip/SYSTEM_blk_mem_gen_0_0/sim/SYSTEM_blk_mem_gen_0_0.v" \
+"../../../bd/SYSTEM/ip/SYSTEM_xlconstant_0_0/sim/SYSTEM_xlconstant_0_0.v" \
+"../../../bd/SYSTEM/ip/SYSTEM_xlconcat_0_0/sim/SYSTEM_xlconcat_0_0.v" \
+"../../../bd/SYSTEM/ip/SYSTEM_xbar_0/sim/SYSTEM_xbar_0.v" \
+"../../../bd/SYSTEM/ip/SYSTEM_eeg_pl_top_0_1/sim/SYSTEM_eeg_pl_top_0_1.v" \
+"../../../bd/SYSTEM/ip/SYSTEM_auto_pc_1/sim/SYSTEM_auto_pc_1.v" \
+"../../../bd/SYSTEM/ip/SYSTEM_auto_pc_0/sim/SYSTEM_auto_pc_0.v" \
+"../../../bd/SYSTEM/sim/SYSTEM.v" \
+
+verilog xil_defaultlib "glbl.v"
+
+nosort

@@ -1,0 +1,68 @@
+#include "xparameters.h"
+#include "xil_printf.h"
+#include "xil_io.h"
+#include "stdint.h"
+#include "sleep.h"
+
+#define BRAM_BASE       XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR
+
+#define RAW_START       256U
+#define RAW_END         1279U
+#define PRODUCER_ADDR   1280U
+#define BAND_START      1281U
+#define STATUS_ADDR     1289U
+
+#define BRAM_READ(n) \
+    Xil_In32(BRAM_BASE + ((n) * 4U))
+
+int main(void)
+{
+    uint32_t producer;
+    uint32_t status;
+    uint32_t bands[8];
+    uint32_t nonzero = 0;
+
+    xil_printf("\r\n===== EEG BRAM DATA TEST =====\r\n");
+
+    while (1)
+    {
+        producer = BRAM_READ(PRODUCER_ADDR);
+        status = BRAM_READ(STATUS_ADDR);
+
+        xil_printf("\r\nProducer = %lu\r\n",
+                   (unsigned long)producer);
+
+        xil_printf("Status = 0x%08lx\r\n",
+                   (unsigned long)status);
+
+        xil_printf("EEG Bands: ");
+
+        for (int i = 0; i < 8; i++)
+        {
+            bands[i] = BRAM_READ(BAND_START + i);
+
+            xil_printf("%lu ",
+                       (unsigned long)bands[i]);
+        }
+
+        xil_printf("\r\n");
+
+        nonzero = 0;
+
+        for (uint32_t i = RAW_START; i <= RAW_END; i++)
+        {
+            if (BRAM_READ(i) != 0)
+                nonzero++;
+        }
+
+        xil_printf("Raw nonzero = %lu / 1024\r\n",
+                   (unsigned long)nonzero);
+
+        xil_printf("Raw[320] = 0x%08lx\r\n",
+                   (unsigned long)BRAM_READ(320));
+
+        sleep(1);
+    }
+
+    return 0;
+}

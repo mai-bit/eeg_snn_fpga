@@ -1,0 +1,92 @@
+timestamp=[2026-11-02 10:11:28], mode=WORKBENCH_START, duration=0:00:06.413, duration_ms=6413, data={}
+timestamp=[2026-11-02 10:11:28], mode=WORKBENCH_UI_INIT, duration=0:00:00.293, duration_ms=293, data={editors_count=0, platform_editors_count=0, projects_count=0, platform_projects_count=0, active_platform_editor=false, projects=}
+timestamp=[2026-11-02 10:11:32], mode=PLATFORM_REPOSITORY_INIT, duration=0:00:03.462, duration_ms=3462, data={}
+timestamp=[2026-11-02 10:31:04], mode=PLATFORM_CREATION, duration=0:00:13.692, duration_ms=13692, data={platform_source=dsa, os=standalone, processor=ps7_cortexa9, platform=null}
+timestamp=[2026-11-02 10:31:51], mode=APP_CREATION, duration=0:00:04.597, duration_ms=4597, data={name=eeg_snn, project_type=sdk, os=standalone, processor=cortex-a9, runtime=C/C++, platform=eeg, application_type=application}
+timestamp=[2026-11-02 10:33:24], mode=PLATFORM_GENERATION, duration=0:00:20.107, duration_ms=20107, data={name=eeg}
+timestamp=[2026-11-02 10:33:26], mode=BUILD, duration=0:00:01.542, duration_ms=1542, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-02 11:08:58], mode=PLATFORM_GENERATION, duration=0:00:05.426, duration_ms=5426, data={name=eeg}
+timestamp=[2026-11-02 11:08:58], mode=BUILD, duration=0:00:00.211, duration_ms=211, data={name=eeg_snn, configuration=Debug, clean_build=true}
+timestamp=[2026-11-02 11:09:03], mode=PLATFORM_GENERATION, duration=0:00:01.600, duration_ms=1600, data={name=eeg}
+timestamp=[2026-11-02 11:09:03], mode=BUILD, duration=0:00:00.212, duration_ms=212, data={name=eeg_snn, configuration=Debug, clean_build=true}
+timestamp=[2026-11-02 11:32:27], mode=PLATFORM_GENERATION, duration=0:00:09.539, duration_ms=9539, data={name=eeg}
+timestamp=[2026-11-02 11:32:27], mode=BUILD, duration=0:00:00.574, duration_ms=574, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-02 11:32:30], mode=BUILD, duration=0:00:02.249, duration_ms=2249, data={name=eeg_snn_system, configuration=Debug, clean_build=false}
+timestamp=[2026-11-02 15:58:59], mode=WORKBENCH_START, duration=0:00:11.541, duration_ms=11541, data={}
+timestamp=[2026-11-02 15:58:59], mode=PLATFORM_REPOSITORY_INIT, duration=0:00:00.077, duration_ms=77, data={}
+timestamp=[2026-11-02 15:58:59], mode=WORKBENCH_UI_INIT, duration=0:00:00.857, duration_ms=857, data={editors_count=4, platform_editors_count=1, projects_count=4, platform_projects_count=1, active_platform_editor=false, projects=RemoteSystemsTempFiles,eeg,eeg_snn,eeg_snn_system}
+timestamp=[2026-11-02 16:02:31], mode=BUILD, duration=0:00:04.527, duration_ms=4527, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-02 16:02:50], mode=BUILD, duration=0:00:00.416, duration_ms=416, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-02 16:02:58], mode=BUILD, duration=0:00:07.373, duration_ms=7373, data={name=eeg_snn_system, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 00:03:46], mode=WORKBENCH_START, duration=0:00:08.023, duration_ms=8023, data={}
+timestamp=[2026-11-03 00:03:47], mode=WORKBENCH_UI_INIT, duration=0:00:00.558, duration_ms=558, data={editors_count=4, platform_editors_count=1, projects_count=4, platform_projects_count=1, active_platform_editor=false, projects=RemoteSystemsTempFiles,eeg,eeg_snn,eeg_snn_system}
+timestamp=[2026-11-03 00:03:47], mode=PLATFORM_REPOSITORY_INIT, duration=0:00:00.069, duration_ms=69, data={}
+timestamp=[2026-11-03 00:03:54], mode=BUILD, duration=0:00:01.044, duration_ms=1044, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 00:13:38], mode=PLATFORM_GENERATION, duration=0:00:08.879, duration_ms=8879, data={name=eeg}
+timestamp=[2026-11-03 00:13:38], mode=BUILD, duration=0:00:00.208, duration_ms=208, data={name=eeg_snn, configuration=Debug, clean_build=true}
+timestamp=[2026-11-03 00:16:43], mode=PLATFORM_GENERATION, duration=0:00:18.667, duration_ms=18667, data={name=eeg}
+timestamp=[2026-11-03 00:16:45], mode=BUILD, duration=0:00:01.732, duration_ms=1732, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 00:19:10], mode=PLATFORM_GENERATION, duration=0:00:05.425, duration_ms=5425, data={name=eeg}
+timestamp=[2026-11-03 00:19:10], mode=BUILD, duration=0:00:00.220, duration_ms=220, data={name=eeg_snn, configuration=Debug, clean_build=true}
+timestamp=[2026-11-03 00:20:01], mode=PLATFORM_GENERATION, duration=0:00:08.848, duration_ms=8848, data={name=eeg}
+timestamp=[2026-11-03 00:20:03], mode=BUILD, duration=0:00:01.072, duration_ms=1072, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 00:20:05], mode=BUILD, duration=0:00:00.416, duration_ms=416, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 00:20:13], mode=BUILD, duration=0:00:05.848, duration_ms=5848, data={name=eeg_snn_system, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 00:22:11], mode=PLATFORM_GENERATION, duration=0:00:05.193, duration_ms=5193, data={name=eeg}
+timestamp=[2026-11-03 00:22:11], mode=BUILD, duration=0:00:00.208, duration_ms=208, data={name=eeg_snn, configuration=Debug, clean_build=true}
+timestamp=[2026-11-03 00:23:14], mode=PLATFORM_GENERATION, duration=0:00:09.549, duration_ms=9549, data={name=eeg}
+timestamp=[2026-11-03 00:23:15], mode=BUILD, duration=0:00:01.122, duration_ms=1122, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 00:23:40], mode=BUILD, duration=0:00:00.412, duration_ms=412, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 00:26:41], mode=BUILD, duration=0:00:01.067, duration_ms=1067, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 01:28:06], mode=BUILD, duration=0:00:04.516, duration_ms=4516, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 01:28:07], mode=BUILD, duration=0:00:00.361, duration_ms=361, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 01:28:13], mode=BUILD, duration=0:00:06.353, duration_ms=6353, data={name=eeg_snn_system, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 22:57:00], mode=WORKBENCH_START, duration=0:00:08.198, duration_ms=8198, data={}
+timestamp=[2026-11-03 22:57:00], mode=WORKBENCH_UI_INIT, duration=0:00:00.535, duration_ms=535, data={editors_count=4, platform_editors_count=1, projects_count=4, platform_projects_count=1, active_platform_editor=false, projects=RemoteSystemsTempFiles,eeg,eeg_snn,eeg_snn_system}
+timestamp=[2026-11-03 22:57:01], mode=PLATFORM_REPOSITORY_INIT, duration=0:00:00.092, duration_ms=92, data={}
+timestamp=[2026-11-03 22:57:58], mode=BUILD, duration=0:00:01.053, duration_ms=1053, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 23:05:22], mode=BUILD, duration=0:00:03.454, duration_ms=3454, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 23:06:23], mode=BUILD, duration=0:00:02.341, duration_ms=2341, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 23:37:35], mode=BUILD, duration=0:00:00.574, duration_ms=574, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 23:39:57], mode=BUILD, duration=0:00:00.519, duration_ms=519, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 23:40:06], mode=BUILD, duration=0:00:09.350, duration_ms=9350, data={name=eeg_snn_system, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 23:40:11], mode=BUILD, duration=0:00:00.511, duration_ms=511, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 23:40:16], mode=BUILD, duration=0:00:05.260, duration_ms=5260, data={name=eeg_snn_system, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 23:40:17], mode=BUILD, duration=0:00:00.520, duration_ms=520, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-03 23:41:15], mode=BUILD, duration=0:00:01.118, duration_ms=1118, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 00:00:59], mode=PLATFORM_GENERATION, duration=0:00:06.074, duration_ms=6074, data={name=eeg}
+timestamp=[2026-11-04 00:01:00], mode=BUILD, duration=0:00:00.209, duration_ms=209, data={name=eeg_snn, configuration=Debug, clean_build=true}
+timestamp=[2026-11-04 00:01:05], mode=PLATFORM_GENERATION, duration=0:00:01.599, duration_ms=1599, data={name=eeg}
+timestamp=[2026-11-04 00:01:05], mode=BUILD, duration=0:00:00.212, duration_ms=212, data={name=eeg_snn, configuration=Debug, clean_build=true}
+timestamp=[2026-11-04 00:01:05], mode=BUILD, duration=0:00:00.161, duration_ms=161, data={name=eeg_snn_system, configuration=Debug, clean_build=true}
+timestamp=[2026-11-04 00:01:17], mode=PLATFORM_GENERATION, duration=0:00:09.828, duration_ms=9828, data={name=eeg}
+timestamp=[2026-11-04 00:01:20], mode=BUILD, duration=0:00:01.066, duration_ms=1066, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 00:01:28], mode=BUILD, duration=0:00:05.161, duration_ms=5161, data={name=eeg_snn_system, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 00:01:37], mode=BUILD, duration=0:00:00.413, duration_ms=413, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 00:01:42], mode=BUILD, duration=0:00:05.256, duration_ms=5256, data={name=eeg_snn_system, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 00:02:42], mode=BUILD, duration=0:00:01.072, duration_ms=1072, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 00:04:45], mode=BUILD, duration=0:00:01.069, duration_ms=1069, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 00:10:49], mode=BUILD, duration=0:00:01.073, duration_ms=1073, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 00:30:19], mode=PLATFORM_GENERATION, duration=0:00:05.158, duration_ms=5158, data={name=eeg}
+timestamp=[2026-11-04 00:30:20], mode=BUILD, duration=0:00:00.219, duration_ms=219, data={name=eeg_snn, configuration=Debug, clean_build=true}
+timestamp=[2026-11-04 00:30:29], mode=PLATFORM_GENERATION, duration=0:00:08.933, duration_ms=8933, data={name=eeg}
+timestamp=[2026-11-04 00:30:30], mode=BUILD, duration=0:00:01.121, duration_ms=1121, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 01:12:09], mode=BUILD, duration=0:00:00.875, duration_ms=875, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 01:12:15], mode=BUILD, duration=0:00:05.712, duration_ms=5712, data={name=eeg_snn_system, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 01:13:01], mode=BUILD, duration=0:00:01.171, duration_ms=1171, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 02:23:34], mode=PLATFORM_GENERATION, duration=0:00:03.105, duration_ms=3105, data={name=eeg}
+timestamp=[2026-11-04 02:23:40], mode=BUILD, duration=0:00:04.375, duration_ms=4375, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 02:24:54], mode=BUILD, duration=0:00:01.074, duration_ms=1074, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 02:27:43], mode=BUILD, duration=0:00:01.125, duration_ms=1125, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 02:40:22], mode=PLATFORM_GENERATION, duration=0:00:01.863, duration_ms=1863, data={name=eeg}
+timestamp=[2026-11-04 02:40:25], mode=BUILD, duration=0:00:01.219, duration_ms=1219, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 03:21:20], mode=BUILD, duration=0:00:01.945, duration_ms=1945, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 03:27:13], mode=BUILD, duration=0:00:01.183, duration_ms=1183, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 03:27:44], mode=BUILD, duration=0:00:00.414, duration_ms=414, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 03:37:39], mode=BUILD, duration=0:00:01.122, duration_ms=1122, data={name=eeg_snn, configuration=Debug, clean_build=false}
+timestamp=[2026-11-04 03:42:09], mode=WORKBENCH_START, duration=0:00:11.389, duration_ms=11389, data={}
+timestamp=[2026-11-04 03:42:10], mode=PLATFORM_REPOSITORY_INIT, duration=0:00:00.048, duration_ms=48, data={}
+timestamp=[2026-11-04 03:42:10], mode=WORKBENCH_UI_INIT, duration=0:00:00.950, duration_ms=950, data={editors_count=4, platform_editors_count=1, projects_count=4, platform_projects_count=1, active_platform_editor=false, projects=RemoteSystemsTempFiles,eeg,eeg_snn,eeg_snn_system}
+timestamp=[2026-11-04 03:50:59], mode=WORKBENCH_START, duration=0:00:07.702, duration_ms=7702, data={}
+timestamp=[2026-11-04 03:51:00], mode=WORKBENCH_UI_INIT, duration=0:00:00.696, duration_ms=696, data={editors_count=4, platform_editors_count=1, projects_count=4, platform_projects_count=1, active_platform_editor=false, projects=RemoteSystemsTempFiles,eeg,eeg_snn,eeg_snn_system}
+timestamp=[2026-11-04 03:51:00], mode=PLATFORM_REPOSITORY_INIT, duration=0:00:00.027, duration_ms=27, data={}
