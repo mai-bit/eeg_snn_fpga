@@ -439,7 +439,11 @@ module eeg_pl_top #(
     // Status outputs
     // ========================================================
 
-    assign td_matrix_ready = rawdata_valid;
-    assign fd_matrix_ready = big_packet_valid;
+    // Legacy matrix-print notification pulses are disabled.
+    // Keep the ports driven for compatibility with the block design.
+    // assign td_matrix_ready = rawdata_valid;
+    // assign fd_matrix_ready = big_packet_valid;
+    assign td_matrix_ready = 1'b0;
+    assign fd_matrix_ready = 1'b0;
 
 endmodule

@@ -5,105 +5,87 @@
 #include "sleep.h"
 #include <stdint.h>
 
-/* BRAM 基地址 */
-#define BRAM_BASE_ADDR       0x40000000U
+#define BRAM_BASE_ADDR  0x40000000U
+#define RAW_START_WORD  256U
+#define RAW_MASK        1023U
+#define PRODUCER_ADDR   (BRAM_BASE_ADDR + 1280U * 4U)
+#define STATUS_ADDR     (BRAM_BASE_ADDR + 1289U * 4U)
 
-/* SNN 结果和更新序号 */
-#define SNN_RESULT_ADDR      (BRAM_BASE_ADDR + 1290U * 4U)
-#define SNN_SEQUENCE_ADDR    (BRAM_BASE_ADDR + 1291U * 4U)
-
-/*
- * 使 BRAM 对应 Cache Line 失效
- * Cache Line 按 32 字节对齐
- */
-static void bram_cache_invalidate(uint32_t addr)
-{
-    uint32_t aligned_addr = addr & ~0x1FU;
-
-    Xil_DCacheInvalidateRange((INTPTR)aligned_addr, 32);
-}
-
-/* 读取 BRAM 中的 32 位数据 */
+/* PL is the only writer of these locations. */
 static uint32_t bram_read(uint32_t addr)
 {
-    bram_cache_invalidate(addr);
+    Xil_DCacheInvalidateRange((INTPTR)(addr & ~0x1FU), 32);
     return Xil_In32(addr);
-}
-
-/* 将分类编号转换为文字 */
-static const char *get_class_name(uint32_t result)
-{
-    switch (result)
-    {
-        case 0:
-            return "Class 0";
-
-        case 1:
-            return "Class 1";
-
-        case 2:
-            return "Class 2";
-
-        case 3:
-            return "Class 3";
-
-        default:
-            return "Unknown Class";
-    }
 }
 
 int main(void)
 {
-    uint32_t last_sequence = 0;
-    uint32_t sequence_before;
-    uint32_t sequence_after;
-    uint32_t snn_result;
+    uint16_t previous, sequence, after, delta;
+    uint32_t heartbeat = 0U, quiet = 0U;
+    uint32_t address, word = 0U, status;
+    unsigned int attempt;
+    int stable;
+    int32_t raw;
 
-    xil_printf("\r\n");
-    xil_printf("================================\r\n");
-    xil_printf("       EEG SNN CLASSIFICATION   \r\n");
-    xil_printf("================================\r\n");
-
-    xil_printf("BRAM Base   : 0x%08X\r\n", BRAM_BASE_ADDR);
-    xil_printf("SNN Result  : 0x%08X\r\n", SNN_RESULT_ADDR);
-    xil_printf("SNN Sequence: 0x%08X\r\n", SNN_SEQUENCE_ADDR);
-
-    xil_printf("Waiting for PL SNN result...\r\n\r\n");
+    xil_printf("\r\n=== EEG BRAM LINK MONITOR ===\r\n");
+    xil_printf("RAW producer address: 0x%08X\r\n", PRODUCER_ADDR);
+    xil_printf("Heartbeat every 500 ms; no SNN result required.\r\n");
+    xil_printf("delta counts new samples since last snapshot, not lost samples.\r\n");
+    xil_printf("Restart this app if PL is reset; seq16 wraps at 65536.\r\n");
+    previous = (uint16_t)bram_read(PRODUCER_ADDR);
+    xil_printf("Initial producer=%d; waiting for fresh updates.\r\n", (int)previous);
 
     while (1)
     {
-        /* 读取 PL 写入的结果更新序号 */
-        sequence_before = bram_read(SNN_SEQUENCE_ADDR);
+        usleep(500000);
+        ++heartbeat;
+        stable = 0;
 
-        /* 没有新结果就继续等待 */
-        if (sequence_before == last_sequence)
+        /* Read the newest committed sample, retry if producer changes.
+         * This is a diagnostic snapshot, not a continuous data recorder. */
+        for (attempt = 0U; attempt < 4U; ++attempt)
         {
-            usleep(10000);
+            sequence = (uint16_t)bram_read(PRODUCER_ADDR);
+            address = BRAM_BASE_ADDR +
+                (RAW_START_WORD + (((uint32_t)sequence - 1U) & RAW_MASK)) * 4U;
+            word = bram_read(address);
+            after = (uint16_t)bram_read(PRODUCER_ADDR);
+            if (sequence == after)
+            {
+                stable = 1;
+                break;
+            }
+        }
+
+        if (!stable)
+        {
+            xil_printf("[HB %d] SNAPSHOT_BUSY: producer changed during read; retry next tick.\r\n",
+                       (int)heartbeat);
             continue;
         }
 
-        /* 读取 PL 写入的 SNN 分类结果 */
-        snn_result = bram_read(SNN_RESULT_ADDR);
-
-        /* 再次读取序号，确认读取过程中结果没有更新 */
-        sequence_after = bram_read(SNN_SEQUENCE_ADDR);
-
-        if (sequence_before != sequence_after)
+        delta = (uint16_t)(sequence - previous);
+        previous = sequence;
+        if (delta == 0U)
         {
+            ++quiet;
+            xil_printf("[HB %d] NO_NEW_RAW seq=%d quiet_ticks=%d (500 ms/tick)\r\n",
+                       (int)heartbeat, (int)sequence, (int)quiet);
             continue;
         }
 
-        last_sequence = sequence_after;
-
-        xil_printf("========== NEW SNN RESULT ==========\r\n");
-
-        xil_printf("Sequence    : %d\r\n", last_sequence);
-        xil_printf("Class ID    : %d\r\n", snn_result);
-        xil_printf("Classification: %s\r\n",
-                   get_class_name(snn_result));
-
-        xil_printf("====================================\r\n\r\n");
+        quiet = 0U;
+        raw = (int32_t)(word & 0xFFFFU);
+        if ((word & 0x8000U) != 0U)
+            raw -= 65536;
+        status = bram_read(STATUS_ADDR);
+        xil_printf("[HB %d] RAW_UPDATED seq=%d delta=%d latest_raw=%d addr=0x%08X\r\n",
+                   (int)heartbeat, (int)sequence, (int)delta, (int)raw, address);
+        xil_printf("  TGAM status=0x%08X quality=%d attention=%d meditation=%d status_seq=%d\r\n",
+                   status, (int)((status >> 8) & 0xFFU),
+                   (int)((status >> 24) & 0xFFU),
+                   (int)((status >> 16) & 0xFFU), (int)(status & 0xFFU));
+        if ((word >> 16) != ((word & 0x8000U) ? 0xFFFFU : 0U))
+            xil_printf("  WARNING: RAW sign extension mismatch, word=0x%08X\r\n", word);
     }
-
-    return 0;
 }
