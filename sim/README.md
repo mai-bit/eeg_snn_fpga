@@ -10,7 +10,8 @@ Real mode uses 1736 clock cycles per bit with a 100 MHz clock
 (approximately 57600 baud); no large waveform is generated.
 
 The test drives actual 8-N-1 serial bits into eeg_pl_top and models
-synchronous 32-bit BRAM writes. It checks RAW signed conversion,
+synchronous 32-bit BRAM writes with byte addressing (addr[12:2]),
+matching the configured vendor IP. Every write is checked for alignment. It checks RAW signed conversion,
 checksum rejection, eight band fields, status packing, ring wrap,
 reset/recovery, disabled legacy notifications and unwritten SNN slots.
 A six-byte variable-layout packet is deliberately rejected to document

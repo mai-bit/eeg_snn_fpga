@@ -3,7 +3,7 @@ module tb_chain;
  parameter integer CPB=16;
  reg clk=0; always #5 clk=~clk;
  reg rst_n=0, rx=1;
- wire [10:0] addr; wire [31:0] data; wire [3:0] we;
+ wire [12:0] addr; wire [31:0] data; wire [3:0] we;
  wire td,fd;
  eeg_pl_top #(.CLKS_PER_BIT(CPB),.HALF_CLKS(CPB/2)) dut
  (.clk(clk),.rst_n(rst_n),.uart_rx(rx),.bram_addr(addr),.bram_data(data),.bram_we(we),.td_matrix_ready(td),.fd_matrix_ready(fd));
@@ -11,7 +11,8 @@ module tb_chain;
  integer writes=0, errors=0, i,j; reg [7:0] p[0:31]; reg [7:0] sum;
  always @(posedge clk) if (rst_n && we!=0) begin
    if(we!==4'hf) $fatal(1,"Unexpected write mask");
-   mem[addr]<=data; writes<=writes+1;
+   if(addr[1:0] !== 2'b00) $fatal(1,"Unaligned byte address");
+   mem[addr[12:2]]<=data; writes<=writes+1;
  end
  task tick(input integer n); repeat(n) @(negedge clk); endtask
  task byte_tx(input [7:0] b);

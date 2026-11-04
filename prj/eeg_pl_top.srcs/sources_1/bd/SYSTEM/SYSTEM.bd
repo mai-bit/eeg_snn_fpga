@@ -939,7 +939,7 @@
           },
           "bram_addr": {
             "direction": "O",
-            "left": "10",
+            "left": "12",
             "right": "0"
           },
           "bram_data": {
