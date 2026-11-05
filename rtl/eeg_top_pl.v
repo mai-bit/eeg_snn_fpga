@@ -18,11 +18,6 @@ module eeg_pl_top #(
     output wire        fd_matrix_ready
 );
 
-    // Internal addresses are 32-bit word indices. The configured BRAM IP
-    // exposes byte addresses on both ports, so shift exactly once here.
-    reg [10:0] bram_word_addr;
-    assign bram_addr = {bram_word_addr, 2'b00};
-
     // ========================================================
     // UART receiver
     // ========================================================
@@ -90,6 +85,33 @@ module eeg_pl_top #(
     );
 
     // ========================================================
+    // Goertzel + SNN: uses Raw EEG only, not TGAM power values.
+    // Same clk/rst_n domain as the BRAM write FSM.
+    // ========================================================
+    wire [1:0] snn_class_id;
+    wire       snn_class_valid;
+    wire [6:0] theta_pct_dbg, alpha_pct_dbg, beta_pct_dbg;
+    wire       feature_valid_dbg;
+
+    goertzel_snn u_goertzel_snn (
+        .clk(clk), .rst_n(rst_n),
+        .raw_sample($signed(rawdata)),
+        .sample_valid(rawdata_valid),
+        .class_id(snn_class_id),
+        .class_valid(snn_class_valid),
+        .theta_pct(theta_pct_dbg),
+        .alpha_pct(alpha_pct_dbg),
+        .beta_pct(beta_pct_dbg),
+        .feature_valid(feature_valid_dbg)
+    );
+
+    reg [1:0] snn_result_pending;
+    reg       snn_result_pending_valid;
+    reg [31:0] snn_result_seq;
+    reg [10:0] bram_word_addr;
+    assign bram_addr = {bram_word_addr, 2'b00};
+
+    // ========================================================
     // BRAM write state machine
     // ========================================================
 
@@ -106,7 +128,9 @@ module eeg_pl_top #(
         ST_B5   = 4'd9,
         ST_B6   = 4'd10,
         ST_B7   = 4'd11,
-        ST_STAT = 4'd12;
+        ST_STAT = 4'd12,
+        ST_SNN_RESULT = 4'd13,
+        ST_SNN_SEQ = 4'd14;
 
     reg [3:0] state;
 
@@ -142,6 +166,8 @@ module eeg_pl_top #(
             quality_pending    <= 8'd0;
 
             status_seq         <= 8'd0;
+            snn_result_pending <= 2'd0;
+            snn_result_pending_valid <= 1'b0;
 
             band_pending[0] <= 24'd0;
             band_pending[1] <= 24'd0;
@@ -153,6 +179,11 @@ module eeg_pl_top #(
             band_pending[7] <= 24'd0;
 
         end else begin
+
+            if (snn_class_valid) begin
+                snn_result_pending <= snn_class_id;
+                snn_result_pending_valid <= 1'b1;
+            end
 
             if (rawdata_valid) begin
                 raw_pending       <= rawdata;
@@ -187,6 +218,9 @@ module eeg_pl_top #(
             if (state == ST_STAT)
                 band_pending_valid <= 1'b0;
 
+            if (state == ST_SNN_SEQ)
+                snn_result_pending_valid <= 1'b0;
+
         end
     end
 
@@ -200,6 +234,7 @@ module eeg_pl_top #(
 
             state     <= ST_INIT;
             write_seq <= 16'd0;
+            snn_result_seq <= 32'd0;
 
             bram_word_addr <= 11'd0;
             bram_data <= 32'd0;
@@ -237,6 +272,9 @@ module eeg_pl_top #(
 
                     else if (band_pending_valid)
                         state <= ST_B0;
+
+                    else if (snn_result_pending_valid)
+                        state <= ST_SNN_RESULT;
 
                 end
 
@@ -387,6 +425,27 @@ module eeg_pl_top #(
 
                 end
 
+                // --------------------------------------------
+                // Write SNN result: BRAM word 1290 (0x40001428)
+                // --------------------------------------------
+                ST_SNN_RESULT: begin
+                    bram_word_addr <= 11'd1290;
+                    bram_data <= {30'd0, snn_result_pending};
+                    bram_we   <= 4'hF;
+                    state <= ST_SNN_SEQ;
+                end
+
+                // --------------------------------------------
+                // Write SNN result sequence: word 1291 (0x4000142C)
+                // --------------------------------------------
+                ST_SNN_SEQ: begin
+                    snn_result_seq <= snn_result_seq + 1'b1;
+                    bram_word_addr <= 11'd1291;
+                    bram_data <= snn_result_seq + 1'b1;
+                    bram_we   <= 4'hF;
+                    state <= ST_IDLE;
+                end
+
                 default: begin
                     state <= ST_IDLE;
                 end
@@ -433,7 +492,6 @@ module eeg_pl_top #(
     assign ila_state              = state;
     assign ila_write_seq          = write_seq;
 
-    // Preserve the existing 11-bit ILA probe as a WORD index.
     assign ila_bram_addr          = bram_word_addr;
     assign ila_bram_data          = bram_data;
     assign ila_bram_we            = bram_we;
@@ -441,14 +499,21 @@ module eeg_pl_top #(
     assign ila_raw_pending_valid  = raw_pending_valid;
     assign ila_band_pending_valid = band_pending_valid;
 
+    (* mark_debug = "true" *) wire [1:0] ila_snn_class;
+    (* mark_debug = "true" *) wire ila_snn_class_valid;
+    (* mark_debug = "true" *) wire ila_feature_valid;
+    (* mark_debug = "true" *) wire [6:0] ila_theta_pct, ila_alpha_pct, ila_beta_pct;
+    assign ila_snn_class = snn_class_id;
+    assign ila_snn_class_valid = snn_class_valid;
+    assign ila_feature_valid = feature_valid_dbg;
+    assign ila_theta_pct = theta_pct_dbg;
+    assign ila_alpha_pct = alpha_pct_dbg;
+    assign ila_beta_pct = beta_pct_dbg;
+
     // ========================================================
     // Status outputs
     // ========================================================
 
-    // Legacy matrix-print notification pulses are disabled.
-    // Keep the ports driven for compatibility with the block design.
-    // assign td_matrix_ready = rawdata_valid;
-    // assign fd_matrix_ready = big_packet_valid;
     assign td_matrix_ready = 1'b0;
     assign fd_matrix_ready = 1'b0;
 

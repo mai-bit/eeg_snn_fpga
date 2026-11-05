@@ -10,7 +10,7 @@ module eeg_pl_top #(
     input  wire        rst_n,
     input  wire        uart_rx,
 
-    output reg  [10:0] bram_addr,
+    output wire [12:0] bram_addr,
     output reg  [31:0] bram_data,
     output reg  [3:0]  bram_we,
 
@@ -108,6 +108,8 @@ module eeg_pl_top #(
     reg [1:0] snn_result_pending;
     reg       snn_result_pending_valid;
     reg [31:0] snn_result_seq;
+    reg [10:0] bram_word_addr;
+    assign bram_addr = {bram_word_addr, 2'b00};
 
     // ========================================================
     // BRAM write state machine
@@ -234,7 +236,7 @@ module eeg_pl_top #(
             write_seq <= 16'd0;
             snn_result_seq <= 32'd0;
 
-            bram_addr <= 11'd0;
+            bram_word_addr <= 11'd0;
             bram_data <= 32'd0;
             bram_we   <= 4'b0000;
 
@@ -251,7 +253,7 @@ module eeg_pl_top #(
 
                 ST_INIT: begin
 
-                    bram_addr <= 11'd1280;
+                    bram_word_addr <= 11'd1280;
                     bram_data <= 32'd0;
                     bram_we   <= 4'hF;
 
@@ -282,7 +284,7 @@ module eeg_pl_top #(
 
                 ST_RAW: begin
 
-                    bram_addr <= 11'd256
+                    bram_word_addr <= 11'd256
                                + {1'b0, write_seq[9:0]};
 
                     // Sign extension
@@ -305,7 +307,7 @@ module eeg_pl_top #(
 
                     write_seq <= write_seq + 1'b1;
 
-                    bram_addr <= 11'd1280;
+                    bram_word_addr <= 11'd1280;
 
                     bram_data <= {
                         16'd0,
@@ -324,7 +326,7 @@ module eeg_pl_top #(
 
                 ST_B0: begin
 
-                    bram_addr <= 11'd1281;
+                    bram_word_addr <= 11'd1281;
                     bram_data <= {8'd0, band_pending[0]};
                     bram_we   <= 4'hF;
 
@@ -334,7 +336,7 @@ module eeg_pl_top #(
 
                 ST_B1: begin
 
-                    bram_addr <= 11'd1282;
+                    bram_word_addr <= 11'd1282;
                     bram_data <= {8'd0, band_pending[1]};
                     bram_we   <= 4'hF;
 
@@ -344,7 +346,7 @@ module eeg_pl_top #(
 
                 ST_B2: begin
 
-                    bram_addr <= 11'd1283;
+                    bram_word_addr <= 11'd1283;
                     bram_data <= {8'd0, band_pending[2]};
                     bram_we   <= 4'hF;
 
@@ -354,7 +356,7 @@ module eeg_pl_top #(
 
                 ST_B3: begin
 
-                    bram_addr <= 11'd1284;
+                    bram_word_addr <= 11'd1284;
                     bram_data <= {8'd0, band_pending[3]};
                     bram_we   <= 4'hF;
 
@@ -364,7 +366,7 @@ module eeg_pl_top #(
 
                 ST_B4: begin
 
-                    bram_addr <= 11'd1285;
+                    bram_word_addr <= 11'd1285;
                     bram_data <= {8'd0, band_pending[4]};
                     bram_we   <= 4'hF;
 
@@ -374,7 +376,7 @@ module eeg_pl_top #(
 
                 ST_B5: begin
 
-                    bram_addr <= 11'd1286;
+                    bram_word_addr <= 11'd1286;
                     bram_data <= {8'd0, band_pending[5]};
                     bram_we   <= 4'hF;
 
@@ -384,7 +386,7 @@ module eeg_pl_top #(
 
                 ST_B6: begin
 
-                    bram_addr <= 11'd1287;
+                    bram_word_addr <= 11'd1287;
                     bram_data <= {8'd0, band_pending[6]};
                     bram_we   <= 4'hF;
 
@@ -394,7 +396,7 @@ module eeg_pl_top #(
 
                 ST_B7: begin
 
-                    bram_addr <= 11'd1288;
+                    bram_word_addr <= 11'd1288;
                     bram_data <= {8'd0, band_pending[7]};
                     bram_we   <= 4'hF;
 
@@ -408,7 +410,7 @@ module eeg_pl_top #(
 
                 ST_STAT: begin
 
-                    bram_addr <= 11'd1289;
+                    bram_word_addr <= 11'd1289;
 
                     bram_data <= {
                         att_pending,
@@ -427,7 +429,7 @@ module eeg_pl_top #(
                 // Write SNN result: BRAM word 1290 (0x40001428)
                 // --------------------------------------------
                 ST_SNN_RESULT: begin
-                    bram_addr <= 11'd1290;
+                    bram_word_addr <= 11'd1290;
                     bram_data <= {30'd0, snn_result_pending};
                     bram_we   <= 4'hF;
                     state <= ST_SNN_SEQ;
@@ -438,7 +440,7 @@ module eeg_pl_top #(
                 // --------------------------------------------
                 ST_SNN_SEQ: begin
                     snn_result_seq <= snn_result_seq + 1'b1;
-                    bram_addr <= 11'd1291;
+                    bram_word_addr <= 11'd1291;
                     bram_data <= snn_result_seq + 1'b1;
                     bram_we   <= 4'hF;
                     state <= ST_IDLE;
@@ -490,7 +492,7 @@ module eeg_pl_top #(
     assign ila_state              = state;
     assign ila_write_seq          = write_seq;
 
-    assign ila_bram_addr          = bram_addr;
+    assign ila_bram_addr          = bram_word_addr;
     assign ila_bram_data          = bram_data;
     assign ila_bram_we            = bram_we;
 
@@ -512,7 +514,7 @@ module eeg_pl_top #(
     // Status outputs
     // ========================================================
 
-    assign td_matrix_ready = rawdata_valid;
-    assign fd_matrix_ready = big_packet_valid;
+    assign td_matrix_ready = 1'b0;
+    assign fd_matrix_ready = 1'b0;
 
 endmodule

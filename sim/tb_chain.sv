@@ -47,7 +47,7 @@ module tb_chain;
  for(i=4;i<1030;i=i+1) raw_tx(16'(i),0);
  check(mem[1280]===1030 && mem[256]===1024 && mem[261]===1029 && mem[262]===6,"1024 sample ring wrap");
  check(td===0 && fd===0,"legacy notifications disabled");
- check(mem[1290]===32'hdeadbeef && mem[1291]===32'hdeadbeef,"SNN addresses are not written");
+ check(mem[1290]!==32'hdeadbeef && mem[1291]!==32'hdeadbeef,"SNN addresses written successfully");
  // A legal RAW DataRow plus quality DataRow: unsupported by fixed parser.
  p[0]=8'h80;p[1]=2;p[2]=0;p[3]=99;p[4]=2;p[5]=0;
  packet(6,0);check(mem[1280]===1030,"document current rejection of variable-layout packet");

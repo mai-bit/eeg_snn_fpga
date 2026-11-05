@@ -9,6 +9,6 @@ if [[ "$mode" == real ]]; then cpb=1736; trace=; args=(); fi
 mkdir -p "work/sim/$mode"
 verilator --binary -j 4 --timing $trace -Wno-fatal --top-module tb_chain \
   -GCPB="$cpb" --Mdir "work/sim/$mode/obj" \
-  sim/tb_chain.sv rtl/uart_rx.v rtl/tgam_parser.v rtl/eeg_top_pl.v \
+  sim/tb_chain.sv rtl/uart_rx.v rtl/tgam_parser.v rtl/eeg_top_pl.v goertzel_snn.v \
   > "work/sim/$mode/build.log" 2>&1
 (cd "work/sim/$mode"; ./obj/Vtb_chain "${args[@]}" | tee run.log)
