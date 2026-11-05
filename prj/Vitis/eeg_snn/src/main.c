@@ -1,6 +1,7 @@
 /*
  * main.c - Zynq-7020 (ARM Cortex-A9 / Vitis)
  * Real-time EEG Acquisition & SNN Hardware Classification Monitor
+ * Powered by snn-fpga Quantized Tile Architecture
  */
 
 #include <stdio.h>
@@ -10,6 +11,7 @@
 #include "xil_cache.h"
 #include "sleep.h"
 #include "xparameters.h"
+#include "snn_infer.h"
 
 #ifndef XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR
 #define BRAM_BASE       0x40000000U
@@ -67,6 +69,9 @@ int main(void)
     xil_printf("  Dual-Port BRAM Base: 0x%08X                          \r\n", BRAM_BASE);
     xil_printf("=======================================================\r\n");
 
+    // snn-fpga Model Parameter Self-Test
+    snn_verify_selftest();
+
     prev_producer = bram_read(PRODUCER_ADDR);
 
     while (1)
@@ -96,18 +101,34 @@ int main(void)
                        quality, attention, meditation);
         }
 
-        // SNN Classification Result
+        // 1. Hardware Kernel SNN Classification (PL Direct Voltage Injection)
         xil_printf("----------------------------------------------------------\r\n");
-        xil_printf("[SNN Hardware Kernel Classification]\r\n");
+        xil_printf("[PL SNN Hardware Accelerator]\r\n");
         xil_printf("  -> Result Sequence : %lu\r\n", (unsigned long)snn_seq);
         xil_printf("  -> Classified Class: %lu => %s\r\n",
                    (unsigned long)snn_class, get_snn_state_name(snn_class));
+
+        // 2. Multi-Layer Tile SNN Classifier (snn-fpga Architecture)
+        int16_t window_64[64];
+        uint32_t start_idx = (curr_producer >= 64) ? (curr_producer - 64) : (1024 + curr_producer - 64);
+        for (int i = 0; i < 64; i++) {
+            uint32_t buf_slot = (start_idx + i) & 1023U;
+            window_64[i] = (int16_t)(bram_read(RAW_START + buf_slot) & 0xFFFFU);
+        }
+        uint8_t ml_spikes[3] = {0};
+        uint32_t ml_class = snn_infer_raw_window(window_64, ml_spikes);
+
+        xil_printf("[snn-fpga Multi-Layer Tile SNN Classifier]\r\n");
+        xil_printf("  -> Classified Class: %lu => %s\r\n",
+                   (unsigned long)ml_class, get_snn_state_name(ml_class));
+        xil_printf("  -> Output Spikes   : Theta=%u, Alpha=%u, Beta=%u\r\n",
+                   ml_spikes[0], ml_spikes[1], ml_spikes[2]);
         xil_printf("----------------------------------------------------------\r\n");
 
-        // Raw EEG preview (First 4 samples in current buffer window)
+        // Raw EEG preview
         uint32_t raw_head_idx = curr_producer & 1023U;
         int16_t raw_sample = (int16_t)(bram_read(RAW_START + raw_head_idx) & 0xFFFFU);
-        xil_printf("[Raw EEG Sample] Current Head Point: %ld uV (Raw ADC: %d)\r\n",
+        xil_printf("[Raw EEG Sample] Head Sample: %ld uV (Raw ADC: %d)\r\n",
                    (long)raw_sample, (int)raw_sample);
 
         // Display Band powers if updated
