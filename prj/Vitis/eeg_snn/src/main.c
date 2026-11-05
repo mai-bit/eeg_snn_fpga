@@ -4,6 +4,7 @@
  * Powered by snn-fpga Quantized Tile Architecture
  *
  * NOTE: Fully self-contained single-source file (No external custom headers required).
+ * Clean 7-bit ASCII encoding for 100% bug-free serial display on all terminals.
  */
 
 #include <stdio.h>
@@ -52,9 +53,9 @@ static const char* const BAND_NAMES[8] = {
 static const char* get_snn_state_name(uint32_t class_id)
 {
     switch (class_id) {
-        case 0: return "THETA (4-7 Hz)  [疲劳 / 瞌睡 / 冥想深沉态]";
-        case 1: return "ALPHA (8-12 Hz) [放松 / 平静 / 闭目清醒态]";
-        case 2: return "BETA  (13-30Hz) [专注 / 警觉 / 活跃思考态]";
+        case 0: return "THETA (4-7 Hz)  [DROWSY / FATIGUE / DEEP MEDITATION]";
+        case 1: return "ALPHA (8-12 Hz) [RELAXED / CALM / EYES CLOSED]";
+        case 2: return "BETA  (13-30Hz) [FOCUSED / ACTIVE THINKING / ALERT]";
         default: return "UNKNOWN";
     }
 }
@@ -586,9 +587,9 @@ int main(void)
 
         // Quality check
         if (quality == 200) {
-            xil_printf("[Sensor Alert] 信号质量: 200 (电极脱落/未接触头皮!)\r\n");
+            xil_printf("[Sensor Alert] Signal Quality: 200 (OFF-HEAD / HIGH NOISE!)\r\n");
         } else {
-            xil_printf("[TGAM Status] 信号噪声: %u (0为极佳) | 专注度: %u%% | 放松度: %u%%\r\n",
+            xil_printf("[TGAM Status] Noise: %u (0=Best) | Attention: %u%% | Meditation: %u%%\r\n",
                        quality, attention, meditation);
         }
 
